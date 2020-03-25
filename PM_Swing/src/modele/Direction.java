@@ -10,5 +10,5 @@ package modele;
  * @author freder
  */
 public enum Direction {
-    haut, bas, gauche, droite
+    haut, bas, gauche, droite, neutre
 }

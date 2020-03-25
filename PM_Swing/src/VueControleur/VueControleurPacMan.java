@@ -18,6 +18,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import modele.Bonus;
 import modele.Direction;
 import modele.Fantome;
 import modele.Jeu;
@@ -40,6 +41,7 @@ public class VueControleurPacMan extends JFrame implements Observer {
     private ImageIcon icoPacMan; // icones affichées dans la grille
     private ImageIcon icoFantome;
     private ImageIcon icoCouloir;
+    private ImageIcon icoBonus;
 
     private JLabel[][] tabJLabel; // cases graphique (au moment du rafraichissement, chaque case va être associé à une icône, suivant ce qui est présent dans la partie modèle)
 
@@ -83,6 +85,7 @@ public class VueControleurPacMan extends JFrame implements Observer {
         icoPacMan = chargerIcone("Images/Pacman.png");
         icoCouloir = chargerIcone("Images/Couloir.png");
         icoFantome = chargerIcone("Images/Fantome.png");
+        icoBonus = chargerIcone("Images/bonus1.png");
     }
 
     private ImageIcon chargerIcone(String urlIcone) {
@@ -131,25 +134,18 @@ public class VueControleurPacMan extends JFrame implements Observer {
 
         for (int x = 0; x < sizeX; x++) {
             for (int y = 0; y < sizeY; y++) {
-                if (jeu.getGrille()[x][y] instanceof Pacman) { // si la grille du modèle contient un Pacman, on associe l'icône Pacman du côté de la vue
-                    
-                    tabJLabel[x][y].setIcon(icoPacMan);
-                    
-                    
-                    
-                } else if (jeu.getGrille()[x][y] instanceof Fantome) {
-                    
-                    tabJLabel[x][y].setIcon(icoFantome);
-                } else {
-                    
-                        tabJLabel[x][y].setIcon(icoCouloir);
-                        
-                        
-                    
+                if (jeu.getGrille()[x][y] instanceof Bonus) {
+                    tabJLabel[x][y].setIcon(icoBonus);
                 }
-                
-                
-
+                else if (jeu.getGrille()[x][y] instanceof Pacman) { // si la grille du modèle contient un Pacman, on associe l'icône Pacman du côté de la vue
+                    tabJLabel[x][y].setIcon(icoPacMan);
+                }
+                else if (jeu.getGrille()[x][y] instanceof Fantome) {
+                    tabJLabel[x][y].setIcon(icoFantome);
+                }
+                else {
+                    tabJLabel[x][y].setIcon(icoCouloir);
+                }
             }
         }
 
@@ -158,7 +154,7 @@ public class VueControleurPacMan extends JFrame implements Observer {
     @Override
     public void update(Observable o, Object arg) {
         
-        
+        System.out.println("update");
         mettreAJourAffichage();
         
         

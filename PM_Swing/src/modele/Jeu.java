@@ -6,6 +6,7 @@
 package modele;
 
 import java.awt.Point;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.logging.Level;
@@ -23,6 +24,7 @@ public class Jeu extends Observable implements Runnable {
     public static final int SIZE_Y = 10;
 
     private Pacman pm;
+    private Bonus bonus;
 
     private HashMap<Entite, Point> map = new  HashMap<Entite, Point>(); // permet de récupérer la position d'une entité à partir de sa référence
     private Entite[][] grilleEntites = new Entite[SIZE_X][SIZE_Y]; // permet de récupérer une entité à partir de ses coordonnées
@@ -31,8 +33,6 @@ public class Jeu extends Observable implements Runnable {
     
     
     public Jeu() {
-        
-        
         initialisationDesEntites();
     }
     
@@ -42,6 +42,10 @@ public class Jeu extends Observable implements Runnable {
     
     public Pacman getPacman() {
         return pm;
+    }
+    
+    public Bonus getBonus() {
+        return bonus;
     }
     
     private void initialisationDesEntites() {
@@ -54,6 +58,9 @@ public class Jeu extends Observable implements Runnable {
         grilleEntites[0][0] = f;
         map.put(f, new Point(0, 0));
         
+        bonus = new Bonus(this);
+        grilleEntites[0][0] = f;
+        map.put(f, new Point(0, 0));
         
     }
     
@@ -72,11 +79,20 @@ public class Jeu extends Observable implements Runnable {
         
         boolean retour;
         
+        if (d == Direction.neutre) {
+            Point p = new Point(Bonus.x, Bonus.y);
+            if (contenuDansGrille(p) && objetALaPosition(p) == null) {
+                grilleEntites[5][5] = bonus;
+                return true;
+            }
+            return false;
+        }
+        
         Point pCourant = map.get(e);
         
         Point pCible = calculerPointCible(pCourant, d);
         
-        if (contenuDansGrille(pCible) && objetALaPosition(pCible) == null) { // a adapter (collisions murs, etc.)
+        if (contenuDansGrille(pCible) && (objetALaPosition(pCible) == null || objetALaPosition(pCible) instanceof Bonus)) {
             deplacerEntite(pCourant, pCible, e);
             retour = true;
         } else {
@@ -90,10 +106,11 @@ public class Jeu extends Observable implements Runnable {
         Point pCible = null;
         
         switch(d) {
-            case haut: pCible = new Point(pCourant.x, pCourant.y - 1); break;
-            case bas : pCible = new Point(pCourant.x, pCourant.y + 1); break;
-            case gauche : pCible = new Point(pCourant.x - 1, pCourant.y); break;
-            case droite : pCible = new Point(pCourant.x + 1, pCourant.y); break;     
+            case haut: pCible = new Point(pCourant.x, (pCourant.y - 1) % SIZE_Y); break;
+            case bas : pCible = new Point(pCourant.x, (pCourant.y + 1) % SIZE_Y); break;
+            case gauche : pCible = new Point((pCourant.x - 1) % SIZE_X, pCourant.y); break;
+            case droite : pCible = new Point((pCourant.x + 1) % SIZE_X, pCourant.y); break;
+            case neutre : pCible = pCourant; break;
             
         }
         
@@ -114,7 +131,7 @@ public class Jeu extends Observable implements Runnable {
     
     private Object objetALaPosition(Point p) {
         Object retour = null;
-        
+
         if (contenuDansGrille(p)) {
             retour = grilleEntites[p.x][p.y];
         }
@@ -135,16 +152,19 @@ public class Jeu extends Observable implements Runnable {
     public void run() {
 
         while (true) {
-
+            Date start = new Date();
             for (Entite e : map.keySet()) { // déclenchement de l'activité des entités, map.keySet() correspond à la liste des entités
-                e.run(); 
+                if (!(e instanceof Bonus))
+                    e.run();
             }
+            bonus.run();
 
             setChanged();
             notifyObservers(); // notification de l'observer pour le raffraichisssement graphique
+            System.out.println("run");
 
             try {
-                Thread.sleep(500); // pause de 0.5s
+                Thread.sleep(2000); // pause de 0.5s
             } catch (InterruptedException ex) {
                 Logger.getLogger(Pacman.class.getName()).log(Level.SEVERE, null, ex);
             }
