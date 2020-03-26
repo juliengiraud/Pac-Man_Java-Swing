@@ -5,6 +5,7 @@
  */
 package modele;
 
+import java.awt.Point;
 import java.util.Random;
 
 /**
@@ -15,8 +16,8 @@ public class Fantome extends Entite {
 
     private Random r = new Random();
 
-    public Fantome(Jeu _jeu) {
-        super(_jeu);
+    public Fantome(Jeu _jeu, Point p) {
+        super(_jeu, p);
 
     }
 
@@ -24,7 +25,7 @@ public class Fantome extends Entite {
     public void choixDirection() {
         
         // développer une stratégie plus détaillée (utiliser regarderDansLaDirection(Entité, Direction) , ajouter murs, etc.)
-        switch (r.nextInt(2)) {
+        switch (r.nextInt(1)) {
             case 0:
                 d = Direction.droite;
                 break;

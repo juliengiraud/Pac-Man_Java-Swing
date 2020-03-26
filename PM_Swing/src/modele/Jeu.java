@@ -50,17 +50,17 @@ public class Jeu extends Observable implements Runnable {
     
     private void initialisationDesEntites() {
         
-        pm = new Pacman(this);
+        pm = new Pacman(this, new Point(2, 0));
         grilleEntites[2][0] = pm;
         map.put(pm, new Point(2, 0));
         
-        Fantome f = new Fantome(this);
+        Fantome f = new Fantome(this, new Point(0, 0));
         grilleEntites[0][0] = f;
         map.put(f, new Point(0, 0));
         
-        bonus = new Bonus(this);
-        grilleEntites[0][0] = f;
-        map.put(f, new Point(0, 0));
+        bonus = new Bonus(this, new Point(5, 5));
+        //grilleEntites[5][5] = bonus;
+        //map.put(bonus, new Point(5, 5));
         
     }
     
@@ -80,9 +80,9 @@ public class Jeu extends Observable implements Runnable {
         boolean retour;
         
         if (d == Direction.neutre) {
-            Point p = new Point(Bonus.x, Bonus.y);
-            if (contenuDansGrille(p) && objetALaPosition(p) == null) {
-                grilleEntites[5][5] = bonus;
+            Point p = bonus.getCoo();
+            if (/*contenuDansGrille(p) &&*/ objetALaPosition(p) == null) {
+                grilleEntites[p.x][p.y] = bonus;
                 return true;
             }
             return false;
@@ -104,14 +104,12 @@ public class Jeu extends Observable implements Runnable {
     
     private Point calculerPointCible(Point pCourant, Direction d) {
         Point pCible = null;
-        
         switch(d) {
             case haut: pCible = new Point(pCourant.x, (pCourant.y - 1) % SIZE_Y); break;
             case bas : pCible = new Point(pCourant.x, (pCourant.y + 1) % SIZE_Y); break;
             case gauche : pCible = new Point((pCourant.x - 1) % SIZE_X, pCourant.y); break;
             case droite : pCible = new Point((pCourant.x + 1) % SIZE_X, pCourant.y); break;
             case neutre : pCible = pCourant; break;
-            
         }
         
         return pCible;
@@ -121,6 +119,7 @@ public class Jeu extends Observable implements Runnable {
         grilleEntites[pCourant.x][pCourant.y] = null;
         grilleEntites[pCible.x][pCible.y] = e;
         map.put(e, pCible);
+        e.coo = pCible;
     }
     
     /** Vérifie que p est contenu dans la grille
@@ -150,21 +149,22 @@ public class Jeu extends Observable implements Runnable {
 
     @Override
     public void run() {
-
+        
         while (true) {
             Date start = new Date();
             for (Entite e : map.keySet()) { // déclenchement de l'activité des entités, map.keySet() correspond à la liste des entités
-                if (!(e instanceof Bonus))
+                if (!(e instanceof Bonus)) {
                     e.run();
+                }
             }
             bonus.run();
 
             setChanged();
             notifyObservers(); // notification de l'observer pour le raffraichisssement graphique
-            System.out.println("run");
-
+            
+            
             try {
-                Thread.sleep(2000); // pause de 0.5s
+                Thread.sleep(500);
             } catch (InterruptedException ex) {
                 Logger.getLogger(Pacman.class.getName()).log(Level.SEVERE, null, ex);
             }

@@ -2,11 +2,14 @@ package VueControleur;
 
 import java.awt.GridLayout;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.logging.Level;
@@ -18,6 +21,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import modele.Bonus;
 import modele.Direction;
 import modele.Fantome;
@@ -31,7 +35,7 @@ import modele.Pacman;
  *
  * @author freder
  */
-public class VueControleurPacMan extends JFrame implements Observer {
+public class VueControleurPacMan extends JFrame implements Observer/*, ActionListener*/ {
 
     private Jeu jeu; // référence sur une classe de modèle : permet d'accéder aux données du modèle pour le rafraichissement, permet de communiquer les actions clavier (ou souris)
 
@@ -42,6 +46,7 @@ public class VueControleurPacMan extends JFrame implements Observer {
     private ImageIcon icoFantome;
     private ImageIcon icoCouloir;
     private ImageIcon icoBonus;
+    private Timer timer;
 
     private JLabel[][] tabJLabel; // cases graphique (au moment du rafraichissement, chaque case va être associé à une icône, suivant ce qui est présent dans la partie modèle)
 
@@ -55,6 +60,12 @@ public class VueControleurPacMan extends JFrame implements Observer {
         placerLesComposantsGraphiques();
 
         ajouterEcouteurClavier();
+        
+        /*int speed = 10;
+        int pause = 0;
+        timer = new Timer(speed, this);
+        timer.setInitialDelay(pause);
+        timer.start(); */
 
     }
 
@@ -154,7 +165,6 @@ public class VueControleurPacMan extends JFrame implements Observer {
     @Override
     public void update(Observable o, Object arg) {
         
-        System.out.println("update");
         mettreAJourAffichage();
         
         
@@ -168,5 +178,11 @@ public class VueControleurPacMan extends JFrame implements Observer {
        */
         
     }
+
+    /*@Override
+    public void actionPerformed(ActionEvent ae) {
+        mettreAJourAffichage();
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }*/
 
 }

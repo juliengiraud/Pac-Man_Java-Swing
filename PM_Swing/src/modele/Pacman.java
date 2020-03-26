@@ -5,6 +5,7 @@
  */
 package modele;
 
+import java.awt.Point;
 import java.util.Random;
 
 
@@ -18,8 +19,8 @@ public class Pacman extends Entite {
     
     
 
-    public Pacman(Jeu _jeu) {
-        super(_jeu);
+    public Pacman(Jeu _jeu, Point p) {
+        super(_jeu, p);
         d = Direction.droite;
 
     }

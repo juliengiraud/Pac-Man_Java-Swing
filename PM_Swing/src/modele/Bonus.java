@@ -13,14 +13,12 @@ import java.awt.Point;
  */
 public class Bonus extends Entite {
     
-    public static final int LIMITE = 5;
-    public static final int x = 5;
-    public static final int y = 5;
+    public static final int LIMITE = 6;
     private int temps;
     private boolean visible;
     
-    public Bonus(Jeu _jeu) {
-        super(_jeu);
+    public Bonus(Jeu _jeu, Point p) {
+        super(_jeu, p);
         temps = 0;
         visible = false;
     }
@@ -40,10 +38,11 @@ public class Bonus extends Entite {
     
     @Override
     public void avancerDirectionChoisie() {
+        if (!visible) {
+            incremente();
+        }
         if (visible) {
             jeu.deplacerEntite(this, Direction.neutre);
-        } else {
-            incremente();
         }
     }
     
