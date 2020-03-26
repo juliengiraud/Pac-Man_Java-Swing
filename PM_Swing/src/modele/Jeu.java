@@ -6,6 +6,7 @@
 package modele;
 
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Observable;
@@ -20,14 +21,15 @@ import java.util.logging.Logger;
  */
 public class Jeu extends Observable implements Runnable {
 
-    public static final int SIZE_X = 10;
-    public static final int SIZE_Y = 10;
+    //public static final int SIZE_X = 26;
+    //public static final int SIZE_Y = 29;
+    public static final int SIZE = 10;
 
     private Pacman pm;
     private Bonus bonus;
 
-    private HashMap<Entite, Point> map = new  HashMap<Entite, Point>(); // permet de récupérer la position d'une entité à partir de sa référence
-    private Entite[][] grilleEntites = new Entite[SIZE_X][SIZE_Y]; // permet de récupérer une entité à partir de ses coordonnées
+    private Entite[][] grilleEntites = new Entite[SIZE][SIZE]; // permet de récupérer une entité à partir de ses coordonnées
+    private ArrayList<Entite> entites = new ArrayList<>();
     
     // TODO : ajouter les murs, couloir, PacGums, et adapter l'ensemble des fonctions (prévoir le raffraichissement également du côté de la vue)
     
@@ -52,15 +54,14 @@ public class Jeu extends Observable implements Runnable {
         
         pm = new Pacman(this, new Point(2, 0));
         grilleEntites[2][0] = pm;
-        map.put(pm, new Point(2, 0));
+        entites.add(pm);
         
         Fantome f = new Fantome(this, new Point(0, 0));
         grilleEntites[0][0] = f;
-        map.put(f, new Point(0, 0));
+        entites.add(f);
         
-        bonus = new Bonus(this, new Point(5, 5));
-        //grilleEntites[5][5] = bonus;
-        //map.put(bonus, new Point(5, 5));
+        bonus = new Bonus(this, new Point(5, 5), 200);
+        entites.add(bonus);
         
     }
     
@@ -69,7 +70,7 @@ public class Jeu extends Observable implements Runnable {
      * (fonctionalité utilisée dans choixDirection() de Fantôme)
      */
     public Object regarderDansLaDirection(Entite e, Direction d) {
-        Point positionEntite = map.get(e);
+        Point positionEntite = e.coo;
         return objetALaPosition(calculerPointCible(positionEntite, d));
     }
     
@@ -79,37 +80,51 @@ public class Jeu extends Observable implements Runnable {
         
         boolean retour;
         
-        if (d == Direction.neutre) {
-            Point p = bonus.getCoo();
-            if (/*contenuDansGrille(p) &&*/ objetALaPosition(p) == null) {
-                grilleEntites[p.x][p.y] = bonus;
-                return true;
-            }
+        Point pCourant = e.coo;
+        Point pCible = calculerPointCible(pCourant, d);
+        
+        if (!contenuDansGrille(pCible)) {
             return false;
         }
         
-        Point pCourant = map.get(e);
-        
-        Point pCible = calculerPointCible(pCourant, d);
-        
-        if (contenuDansGrille(pCible) && (objetALaPosition(pCible) == null || objetALaPosition(pCible) instanceof Bonus)) {
+        if (objetALaPosition(pCible) == null) { // Si la case est vide on a rien à faire
             deplacerEntite(pCourant, pCible, e);
-            retour = true;
-        } else {
-            retour = false;
+            return true;
         }
-        return retour;
+        
+        Entite new_e = gestionCollision(e, objetALaPosition(pCible));
+        if (new_e != null) {
+            deplacerEntite(pCourant, pCible, new_e);
+            return true;
+        }
+        
+        return false;
+    }
+    
+    private Entite gestionCollision(Entite src, Entite dest) { // Gère le trantement lorsque deux entités se supperposent
+        
+        if (dest == bonus) { // On va arriver aux coordonnées du bonus
+            if (src == pm) { // Si on est le joueur
+                pm.augmenterScore(bonus.getScore()); // Gestion "pacman mange le bonus"
+                bonus.reinitialiser();
+                return pm;
+            }
+            else { // Un fantome arrive sur le bonus
+                return dest; // Gestion "fantome sur le bonus"
+            }
+        }
+        return null;
     }
     
     
     private Point calculerPointCible(Point pCourant, Direction d) {
         Point pCible = null;
         switch(d) {
-            case haut: pCible = new Point(pCourant.x, (pCourant.y - 1) % SIZE_Y); break;
-            case bas : pCible = new Point(pCourant.x, (pCourant.y + 1) % SIZE_Y); break;
-            case gauche : pCible = new Point((pCourant.x - 1) % SIZE_X, pCourant.y); break;
-            case droite : pCible = new Point((pCourant.x + 1) % SIZE_X, pCourant.y); break;
-            case neutre : pCible = pCourant; break;
+            case haut: pCible = new Point(pCourant.x, (pCourant.y + SIZE - 1) % SIZE); break;
+            case bas: pCible = new Point(pCourant.x, (pCourant.y + 1) % SIZE); break;
+            case gauche: pCible = new Point((pCourant.x + SIZE - 1) % SIZE, pCourant.y); break;
+            case droite: pCible = new Point((pCourant.x + 1) % SIZE, pCourant.y); break;
+            case neutre: pCible = pCourant; break;
         }
         
         return pCible;
@@ -118,18 +133,20 @@ public class Jeu extends Observable implements Runnable {
     private void deplacerEntite(Point pCourant, Point pCible, Entite e) {
         grilleEntites[pCourant.x][pCourant.y] = null;
         grilleEntites[pCible.x][pCible.y] = e;
-        map.put(e, pCible);
         e.coo = pCible;
     }
     
     /** Vérifie que p est contenu dans la grille
      */
     private boolean contenuDansGrille(Point p) {
-        return p.x >= 0 && p.x < SIZE_X && p.y >= 0 && p.y < SIZE_Y;
+        boolean sortie = p.x >= 0 && p.x < SIZE && p.y >= 0 && p.y < SIZE;
+        if (!sortie)
+            System.out.println("Erreur grille : " + p.toString());
+        return sortie;
     }
     
-    private Object objetALaPosition(Point p) {
-        Object retour = null;
+    private Entite objetALaPosition(Point p) {
+        Entite retour = null;
 
         if (contenuDansGrille(p)) {
             retour = grilleEntites[p.x][p.y];
@@ -151,13 +168,9 @@ public class Jeu extends Observable implements Runnable {
     public void run() {
         
         while (true) {
-            Date start = new Date();
-            for (Entite e : map.keySet()) { // déclenchement de l'activité des entités, map.keySet() correspond à la liste des entités
-                if (!(e instanceof Bonus)) {
-                    e.run();
-                }
+            for (Entite e : entites) {
+                e.run();
             }
-            bonus.run();
 
             setChanged();
             notifyObservers(); // notification de l'observer pour le raffraichisssement graphique

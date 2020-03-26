@@ -13,14 +13,19 @@ import java.awt.Point;
  */
 public class Bonus extends Entite {
     
-    public static final int LIMITE = 6;
+    public static final int LIMITE = 5;
     private int temps;
+    private int score;
     private boolean visible;
     
-    public Bonus(Jeu _jeu, Point p) {
+    public Bonus(Jeu _jeu, Point p, int score) {
         super(_jeu, p);
         temps = 0;
         visible = false;
+    }
+    
+    public int getScore() {
+        return score;
     }
     
     private void incremente() {
@@ -29,8 +34,12 @@ public class Bonus extends Entite {
         }
         if (temps == LIMITE) {
             visible = true;
-            System.out.println("Visible");
         }
+    }
+    
+    public void reinitialiser() {
+        visible = false;
+        temps = 0;
     }
 
     @Override

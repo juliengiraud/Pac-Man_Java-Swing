@@ -39,33 +39,26 @@ public class VueControleurPacMan extends JFrame implements Observer/*, ActionLis
 
     private Jeu jeu; // référence sur une classe de modèle : permet d'accéder aux données du modèle pour le rafraichissement, permet de communiquer les actions clavier (ou souris)
 
-    private int sizeX; // taille de la grille affichée
-    private int sizeY;
+    //private int sizeX; // taille de la grille affichée
+    //private int sizeY;
+    private int size;
 
     private ImageIcon icoPacMan; // icones affichées dans la grille
     private ImageIcon icoFantome;
     private ImageIcon icoCouloir;
     private ImageIcon icoBonus;
-    private Timer timer;
 
     private JLabel[][] tabJLabel; // cases graphique (au moment du rafraichissement, chaque case va être associé à une icône, suivant ce qui est présent dans la partie modèle)
 
 
-    public VueControleurPacMan(int _sizeX, int _sizeY) {
+    public VueControleurPacMan(int _size) {
 
-        sizeX = _sizeX;
-        sizeY = _sizeY;
+        size = _size;
 
         chargerLesIcones();
         placerLesComposantsGraphiques();
 
         ajouterEcouteurClavier();
-        
-        /*int speed = 10;
-        int pause = 0;
-        timer = new Timer(speed, this);
-        timer.setInitialDelay(pause);
-        timer.start(); */
 
     }
 
@@ -114,16 +107,16 @@ public class VueControleurPacMan extends JFrame implements Observer/*, ActionLis
     private void placerLesComposantsGraphiques() {
 
         setTitle("PacMan");
-        setSize(200, 250);
+        setSize(25*size, 25*size);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // permet de terminer l'application à la fermeture de la fenêtre
 
-        JComponent grilleJLabels = new JPanel(new GridLayout(10, 10)); // grilleJLabels va contenir les cases graphiques et les positionner sous la forme d'une grille
+        JComponent grilleJLabels = new JPanel(new GridLayout(size, size)); // grilleJLabels va contenir les cases graphiques et les positionner sous la forme d'une grille
 
-        tabJLabel = new JLabel[sizeX][sizeY];
+        tabJLabel = new JLabel[size][size];
         
 
-        for (int x = 0; x < sizeX; x++) {
-            for (int y = 0; y < sizeY; y++) {
+        for (int x = 0; x < size; x++) {
+            for (int y = 0; y < size; y++) {
 
                 JLabel jlab = new JLabel();
                 tabJLabel[y][x] = jlab; // on conserve les cases graphiques dans tabJLabel pour avoir un accès pratique à celles-ci (voir mettreAJourAffichage() )
@@ -143,8 +136,8 @@ public class VueControleurPacMan extends JFrame implements Observer/*, ActionLis
      */
     private void mettreAJourAffichage() {
 
-        for (int x = 0; x < sizeX; x++) {
-            for (int y = 0; y < sizeY; y++) {
+        for (int x = 0; x < size; x++) {
+            for (int y = 0; y < size; y++) {
                 if (jeu.getGrille()[x][y] instanceof Bonus) {
                     tabJLabel[x][y].setIcon(icoBonus);
                 }
@@ -168,21 +161,15 @@ public class VueControleurPacMan extends JFrame implements Observer/*, ActionLis
         mettreAJourAffichage();
         
         
-        /*
-        SwingUtilities.invokeLater(new Runnable() {
+        
+        /*SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
                         mettreAJourAffichage();
                     }
-                }); 
-       */
+                }); */
+       
         
     }
-
-    /*@Override
-    public void actionPerformed(ActionEvent ae) {
-        mettreAJourAffichage();
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }*/
 
 }

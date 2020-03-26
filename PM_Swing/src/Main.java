@@ -18,7 +18,7 @@ public class Main {
         
         Jeu jeu = new Jeu();
         
-        VueControleurPacMan vc = new VueControleurPacMan(Jeu.SIZE_X, Jeu.SIZE_Y);
+        VueControleurPacMan vc = new VueControleurPacMan(Jeu.SIZE);
         
         jeu.addObserver(vc);
         vc.setJeu(jeu);

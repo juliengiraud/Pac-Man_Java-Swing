@@ -15,14 +15,17 @@ import java.util.Random;
  * @author fred
  */
 public class Pacman extends Entite {
-
     
-    
+    private int score;
 
     public Pacman(Jeu _jeu, Point p) {
         super(_jeu, p);
         d = Direction.droite;
-
+        score = 0;
+    }
+    
+    public void augmenterScore(int s) {
+        score += s;
     }
     
     public void setDirection(Direction _d) {
@@ -30,8 +33,6 @@ public class Pacman extends Entite {
     }
 
     @Override
-    public void choixDirection() {
-        
-    }
+    public void choixDirection() {}
 
 }

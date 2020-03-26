@@ -15,6 +15,7 @@ import java.util.Random;
 public class Fantome extends Entite {
 
     private Random r = new Random();
+    private boolean vulnerable;
 
     public Fantome(Jeu _jeu, Point p) {
         super(_jeu, p);
