@@ -29,10 +29,6 @@ public abstract class Entite implements Runnable {
         coo = p;
     }
     
-    /*public Point getCoo() {
-        return coo;
-    }*/
-    
     @Override
     public void run() {
         choixDirection();
