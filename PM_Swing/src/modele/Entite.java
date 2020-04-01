@@ -39,4 +39,8 @@ public abstract class Entite implements Runnable {
         avancerDirectionChoisie();
     }
     
+    @Override
+    public String toString() {
+        return coo.toString();
+    }
 }
