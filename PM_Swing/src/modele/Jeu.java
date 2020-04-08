@@ -25,6 +25,8 @@ public class Jeu extends Observable implements Runnable {
     private Bonus bonus;
     private final Fantome[] fantome = new Fantome[4];
     private Mur mur;
+    
+    private int partie_on;
 
     private final Entite[][] grilleEntites = new Entite[SIZE][SIZE]; // permet de récupérer une entité à partir de ses coordonnées
     private final ArrayList<Entite> entites = new ArrayList<>();
@@ -49,6 +51,10 @@ public class Jeu extends Observable implements Runnable {
     
     public Bonus getBonus() {
         return bonus;
+    }
+    
+    public Boolean getPartieOn() {
+        return partie_on > 0;
     }
     
     private void initialisationDesEntites() {
@@ -391,6 +397,15 @@ public class Jeu extends Observable implements Runnable {
                 return dest; // Gestion "fantome sur le bonus"
             }
         }
+        if (dest instanceof Fantome) { // On va arriver sur un fantôme
+            if (src == pm) { // Si on est le joueur
+                pm.tuer(); // Gestion "pacman arrive sur un fantôme"
+                return dest;
+            }
+            else { // Un fantôme arrive sur un autre fantôme
+                return dest;
+            }
+        }
         return null;
     }
 
@@ -436,14 +451,21 @@ public class Jeu extends Observable implements Runnable {
      * Un processus est créé et lancé, celui-ci execute la fonction run()
      */
     public void start() {
-
+        
         new Thread(this).start();
+        partie_on = 2;
+                
+    }
+    
+    public void stop() {
+        
+        partie_on--;
     }
 
     @Override
     public void run() {
         
-        while (true) {
+        while (partie_on > 0) {
             for (Entite e : entites) {
                 e.run();
             }
@@ -456,6 +478,7 @@ public class Jeu extends Observable implements Runnable {
             } catch (InterruptedException ex) {
                 Logger.getLogger(Pacman.class.getName()).log(Level.SEVERE, null, ex);
             }
+            System.out.println("Ici");
         }
     }
 }

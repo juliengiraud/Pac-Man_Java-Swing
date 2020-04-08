@@ -41,12 +41,9 @@ public class Bonus extends Entite {
         visible = false;
         temps = 0;
     }
-
-    @Override
-    public void choixDirection() {}
     
     @Override
-    public void avancerDirectionChoisie() {
+    public void run() {
         if (!visible) {
             incremente();
         }
@@ -54,5 +51,8 @@ public class Bonus extends Entite {
             jeu.deplacerEntite(this, Direction.neutre);
         }
     }
+
+    @Override
+    public void choixDirection() {}
     
 }

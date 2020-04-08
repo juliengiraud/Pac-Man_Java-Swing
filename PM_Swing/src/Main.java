@@ -1,6 +1,5 @@
 
 import VueControleur.VueControleurPacMan;
-import modele.Jeu;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -14,16 +13,8 @@ import modele.Jeu;
  */
 public class Main {
     public static void main(String[] args) {
-        
-        Jeu jeu = new Jeu();
-        
-        VueControleurPacMan vc = new VueControleurPacMan(Jeu.SIZE);
-        
-        jeu.addObserver(vc);
-        vc.setJeu(jeu);
-        
-        vc.setVisible(true);
-        
-        jeu.start();
+
+        VueControleurPacMan vc = new VueControleurPacMan();
+
     }
 }

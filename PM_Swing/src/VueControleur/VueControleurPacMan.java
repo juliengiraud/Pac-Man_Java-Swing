@@ -1,6 +1,9 @@
 package VueControleur;
 
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
@@ -11,7 +14,9 @@ import java.util.Observer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -31,7 +36,7 @@ import modele.Mur;
  *
  * @author freder
  */
-public class VueControleurPacMan extends JFrame implements Observer/*, ActionListener*/ {
+public class VueControleurPacMan extends JFrame implements Observer {
 
     private Jeu jeu; // référence sur une classe de modèle : permet d'accéder aux données du modèle pour le rafraichissement, permet de communiquer les actions clavier (ou souris)
 
@@ -47,21 +52,25 @@ public class VueControleurPacMan extends JFrame implements Observer/*, ActionLis
     private boolean startgood = false;
 
     private JLabel[][] tabJLabel; // cases graphique (au moment du rafraichissement, chaque case va être associé à une icône, suivant ce qui est présent dans la partie modèle)
+    JComponent grilleJLabels;
+    JPanel menu;
+    
 
+    public VueControleurPacMan() {
 
-    public VueControleurPacMan(int _size) {
-
-        size = _size;
+        size = Jeu.SIZE;
 
         chargerLesIcones();
         placerLesComposantsGraphiques();
-
         ajouterEcouteurClavier();
+
+        setVisible(true);
 
     }
 
     private void ajouterEcouteurClavier() {
-
+        
+        setFocusable(true);
         addKeyListener(new KeyAdapter() {
             
             @Override
@@ -89,20 +98,21 @@ public class VueControleurPacMan extends JFrame implements Observer/*, ActionLis
         });
     }
 
-    public void setJeu(Jeu _jeu) {
-        jeu = _jeu;
+    public void chargerJeu() {
+        jeu = new Jeu();
+        jeu.addObserver(this);
     }
 
     private void chargerLesIcones() {
         
-        icoPacMan[0]= chargerIcone("Images/Up.png");
-        icoPacMan[1]= chargerIcone("Images/Down.png");
-        icoPacMan[2]= chargerIcone("Images/Left.png");
-        icoPacMan[3]= chargerIcone("Images/Right.png");
-        icoPacMan[4]= chargerIcone("Images/BigUp.png");
-        icoPacMan[5]= chargerIcone("Images/BigDown.png");
-        icoPacMan[6]= chargerIcone("Images/BigLeft.png");
-        icoPacMan[7]= chargerIcone("Images/BigRight.png");
+        icoPacMan[0] = chargerIcone("Images/Up.png");
+        icoPacMan[1] = chargerIcone("Images/Down.png");
+        icoPacMan[2] = chargerIcone("Images/Left.png");
+        icoPacMan[3] = chargerIcone("Images/Right.png");
+        icoPacMan[4] = chargerIcone("Images/BigUp.png");
+        icoPacMan[5] = chargerIcone("Images/BigDown.png");
+        icoPacMan[6] = chargerIcone("Images/BigLeft.png");
+        icoPacMan[7] = chargerIcone("Images/BigRight.png");
 
         icoCouloir = chargerIcone("Images/Couloir.png");
         icoBonus = chargerIcone("Images/bonus.png");
@@ -132,8 +142,8 @@ public class VueControleurPacMan extends JFrame implements Observer/*, ActionLis
 
         //Fantome 
         icoFantome[0] = chargerIcone("Images/FonRedRight.png");
-        icoFantome[1]= chargerIcone("Images/FonPinkRight.png");
-        icoFantome[2]= chargerIcone("Images/FonBleuRight.png");
+        icoFantome[1] = chargerIcone("Images/FonPinkRight.png");
+        icoFantome[2] = chargerIcone("Images/FonBleuRight.png");
 
     }
 
@@ -153,24 +163,99 @@ public class VueControleurPacMan extends JFrame implements Observer/*, ActionLis
 
         setTitle("PacMan");
         setSize(18*size, 21*size);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // permet de terminer l'application à la fermeture de la fenêtre
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setResizable(false);
+        setLocationRelativeTo(null);
 
-        JComponent grilleJLabels = new JPanel(new GridLayout(size, size)); // grilleJLabels va contenir les cases graphiques et les positionner sous la forme d'une grille
-
+        grilleJLabels = new JPanel(new GridLayout(size, size));
         tabJLabel = new JLabel[size][size];
 
         for (int x = 0; x < size; x++) {
             for (int y = 0; y < size; y++) {
-
                 JLabel jlab = new JLabel();
-                tabJLabel[y][x] = jlab; // on conserve les cases graphiques dans tabJLabel pour avoir un accès pratique à celles-ci (voir mettreAJourAffichage() )
+                tabJLabel[y][x] = jlab;
                 grilleJLabels.add(jlab);
-                
             }
         }
+
+        // Création des conteneurs
+        JPanel jp_image_menu = new JPanel(); // Image du haut/milieu
+        JPanel jp_lancer_jeu = new JPanel(); // Bouton "Lancer le jeu"
+        JPanel jp_afficher_score = new JPanel(); // Bouton "Afficher les scores"
+        menu = new JPanel(); // Tous les éléments
+
+        // Espace du milieu
+        JLabel jl_fond = new JLabel();
+        jl_fond.setIcon(chargerIcone("Images/accueil.png"));
+        jp_image_menu.setPreferredSize(new Dimension(this.getWidth()+1, 300));
+        jp_image_menu.add(jl_fond);
+        jp_image_menu.setBackground(Color.black);
+
+        // Lancer le jeu
+        JButton jb_lancer_jeu = new JButton("Lancer le jeu");
+        jp_lancer_jeu.setMaximumSize(new Dimension(this.getWidth()+1, 0));
+        jp_lancer_jeu.setPreferredSize(new Dimension(this.getWidth()+1, 40));
+        jp_lancer_jeu.add(jb_lancer_jeu);
+        jp_lancer_jeu.setBackground(Color.black);
+        jb_lancer_jeu.addActionListener((ActionEvent ae) -> {
+            lancer_jeu();
+        });
+
+        // Afficher les scores
+        JButton jb_afficher_score = new JButton("Afficher les scores");
+        jp_afficher_score.add(jb_afficher_score);
+        jp_afficher_score.setBackground(Color.black);
+        jb_afficher_score.addActionListener((ActionEvent ae) -> {
+            afficher_score();
+        });
+
+        // Ajout des conteneurs au menu
+        BoxLayout bl_menu = new BoxLayout(menu, BoxLayout.Y_AXIS);
+        menu.setLayout(bl_menu);
+        menu.setAlignmentX(JComponent.BOTTOM_ALIGNMENT);
+        menu.setBackground(Color.black);
+        menu.add(jp_image_menu);
+        menu.add(jp_lancer_jeu);
+        menu.add(jp_afficher_score);
+
+        // Ajout du menu à la vue
+        add(menu);
+
+    }
+
+    private void lancer_jeu() {
+        System.out.println("Lancer le jeu");
+
+        menu.setVisible(false);
+        remove(menu);
         add(grilleJLabels);
+        grilleJLabels.setVisible(true);
+        
+        chargerJeu();
+        jeu.start();
+
     }
     
+    private void retour_menu() {
+        System.out.println("Retourner au menu");
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Pacman.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        grilleJLabels.setVisible(false);
+        remove(grilleJLabels);
+        add(menu);
+        menu.setVisible(true);
+        
+
+    }
+
+    private void afficher_score() {
+        System.out.println("Afficher le score");
+    }
+
     /**
      * Il y a une grille du côté du modèle ( jeu.getGrille() ) et une grille du côté de la vue (tabJLabel)
      */
@@ -179,7 +264,7 @@ public class VueControleurPacMan extends JFrame implements Observer/*, ActionLis
         for (int x = 0; x < size; x++) {
             for (int y = 0; y < size; y++) {
                 if (!startgood || lastGrille[x][y] != jeu.getGrille()[x][y]) {
-                    System.out.println("Changement en " + x + ", " + y);
+                    //System.out.println("Changement en " + x + ", " + y);
                     if (jeu.getGrille()[x][y] instanceof Bonus) {
                         tabJLabel[x][y].setIcon(icoBonus);
                     }
@@ -204,12 +289,14 @@ public class VueControleurPacMan extends JFrame implements Observer/*, ActionLis
             }
         }
         startgood = true;
-        System.out.println("\n");
+        //System.out.println("\n");
     }
 
     @Override
     public void update(Observable o, Object arg) {
-        
-        mettreAJourAffichage();
+        if (jeu.getPartieOn())
+            mettreAJourAffichage();
+        else
+            retour_menu();
     }
 }

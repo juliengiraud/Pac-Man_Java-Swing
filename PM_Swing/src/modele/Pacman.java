@@ -13,12 +13,28 @@ public class Pacman extends Entite {
     
     private int score;
     private boolean big;
+    private int vie;
+    private final Point spawn;
 
     public Pacman(Jeu _jeu, Point p) {
         super(_jeu, p);
         d = Direction.droite;
         score = 0;
         big = false;
+        vie = 2;
+        spawn = p;
+    }
+    
+    public void tuer() {
+        if (vie > 0) {
+            vie--;
+            d = Direction.droite;
+            coo = spawn;
+        }
+        else {
+            System.out.println("fin de la partie");
+            jeu.stop();
+        }
     }
     
     public void augmenterScore(int s) {
