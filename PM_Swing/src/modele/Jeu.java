@@ -67,7 +67,7 @@ public class Jeu extends Observable implements Runnable {
         grilleEntites[12][12] = fantome[0];
         entites.add(fantome[0]);
         
-        bonus = new Bonus(this, new Point(5, 5), 200);
+        bonus = new Bonus(this, new Point(5, 5), 100);
         grilleEntites[5][5]= bonus;
         entites.add(bonus);
 
@@ -94,7 +94,7 @@ public class Jeu extends Observable implements Runnable {
         //passage Droite
         ajouterMur(SIZE-1,10,3);
         ajouterMur(SIZE-1,13,1);
-     
+
         //passage Gauche
         ajouterMur(0,10,3);
         ajouterMur(0,13,1);
@@ -356,7 +356,7 @@ public class Jeu extends Observable implements Runnable {
         Point positionEntite = e.coo;
         return objetALaPosition(calculerPointCible(positionEntite, d));
     }
-    
+
     /** Si le déclacement de l'entité est autorisé (pas de mur ou autre entité), il est réalisé
      * @param e
      * @param d
@@ -389,8 +389,7 @@ public class Jeu extends Observable implements Runnable {
 
         if (dest == bonus) { // On va arriver aux coordonnées du bonus
             if (src == pm) { // Si on est le joueur
-                pm.augmenterScore(bonus.getScore()); // Gestion "pacman mange le bonus"
-                bonus.reinitialiser();
+                pm.manger(bonus); // "pacman mange le bonus"
                 return pm;
             }
             else { // Un fantome arrive sur le bonus
@@ -400,6 +399,11 @@ public class Jeu extends Observable implements Runnable {
         if (dest instanceof Fantome) { // On va arriver sur un fantôme
             if (src == pm) { // Si on est le joueur
                 pm.tuer(); // Gestion "pacman arrive sur un fantôme"
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Pacman.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 return dest;
             }
             else { // Un fantôme arrive sur un autre fantôme
@@ -418,16 +422,16 @@ public class Jeu extends Observable implements Runnable {
             case droite: pCible = new Point((pCourant.x + 1) % SIZE, pCourant.y); break;
             case neutre: pCible = pCourant; break;
         }
-        
+
         return pCible;
     }
-    
+
     private void deplacerEntite(Point pCourant, Point pCible, Entite e) {
         grilleEntites[pCourant.x][pCourant.y] = null;
         grilleEntites[pCible.x][pCible.y] = e;
         e.coo = pCible;
     }
-    
+
     /** Vérifie que p est contenu dans la grille
      */
     private boolean contenuDansGrille(Point p) {
@@ -436,35 +440,35 @@ public class Jeu extends Observable implements Runnable {
             System.out.println("Erreur grille : " + p.toString());
         return sortie;
     }
-    
+
     private Entite objetALaPosition(Point p) {
         Entite retour = null;
 
         if (contenuDansGrille(p)) {
             retour = grilleEntites[p.x][p.y];
         }
-        
+
         return retour;
     }
-    
+
     /**
      * Un processus est créé et lancé, celui-ci execute la fonction run()
      */
     public void start() {
-        
+
         new Thread(this).start();
         partie_on = 2;
-                
+
     }
-    
+
     public void stop() {
-        
+
         partie_on--;
     }
 
     @Override
     public void run() {
-        
+
         while (partie_on > 0) {
             for (Entite e : entites) {
                 e.run();
@@ -478,7 +482,6 @@ public class Jeu extends Observable implements Runnable {
             } catch (InterruptedException ex) {
                 Logger.getLogger(Pacman.class.getName()).log(Level.SEVERE, null, ex);
             }
-            System.out.println("Ici");
         }
     }
 }

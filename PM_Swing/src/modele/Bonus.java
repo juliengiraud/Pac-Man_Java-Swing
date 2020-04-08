@@ -11,21 +11,18 @@ import java.awt.Point;
  *
  * @author julien
  */
-public class Bonus extends Entite {
+public class Bonus extends Entite implements Mangeable {
     
-    public static final int LIMITE = 5;
+    public static final int LIMITE = 10;
     private int temps;
-    private int score;
+    private final int score;
     private boolean visible;
     
-    public Bonus(Jeu _jeu, Point p, int score) {
+    public Bonus(Jeu _jeu, Point p, int s) {
         super(_jeu, p);
         temps = 0;
         visible = false;
-    }
-    
-    public int getScore() {
-        return score;
+        score = s;
     }
     
     private void incremente() {
@@ -54,5 +51,15 @@ public class Bonus extends Entite {
 
     @Override
     public void choixDirection() {}
+
+    @Override
+    public void getMange() {
+        reinitialiser();
+    }
     
+    @Override
+    public int getScore() {
+        return score;
+    }
+
 }

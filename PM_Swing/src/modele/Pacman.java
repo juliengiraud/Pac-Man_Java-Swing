@@ -8,13 +8,13 @@ package modele;
 import java.awt.Point;
 
 
-
 public class Pacman extends Entite {
     
     private int score;
     private boolean big;
     private int vie;
     private final Point spawn;
+    private Direction futureDirection;
 
     public Pacman(Jeu _jeu, Point p) {
         super(_jeu, p);
@@ -25,26 +25,39 @@ public class Pacman extends Entite {
         spawn = p;
     }
     
+    private void respawn() {
+        coo = spawn;
+        d = Direction.droite;
+        futureDirection = null;
+    }
+    
+    public void setBig() {
+        big = true;
+    }
+
     public void tuer() {
         if (vie > 0) {
             vie--;
-            d = Direction.droite;
-            coo = spawn;
+            respawn();
         }
         else {
             System.out.println("fin de la partie");
             jeu.stop();
         }
     }
-    
-    public void augmenterScore(int s) {
+
+    private void augmenterScore(int s) {
         score += s;
     }
-    
-    public void setDirection(Direction _d) {
+
+    /*public void setDirection(Direction _d) {
         d = _d;
-    }
+    }*/
     
+    public void setFutureDirection(Direction d) {
+        futureDirection = d;
+    }
+
     public int getState() {
         if (!big) {
             if (d == Direction.haut)
@@ -69,7 +82,27 @@ public class Pacman extends Entite {
         return -1;
     }
 
+    public int getScore() {
+        return score;
+    }
+
+    public int getVies() {
+        return vie;
+    }
+    
+    public void manger(Mangeable objet) {
+        augmenterScore(objet.getScore());
+        objet.getMange();
+    }
+
     @Override
-    public void choixDirection() {}
+    public void choixDirection() {
+        if (futureDirection == null)
+            return;
+        Object cible = (Entite) jeu.regarderDansLaDirection(this, futureDirection);
+        if (cible instanceof Mur)
+            return;
+        d = futureDirection;
+    }
 
 }

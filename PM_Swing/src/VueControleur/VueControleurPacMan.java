@@ -1,5 +1,6 @@
 package VueControleur;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -38,27 +39,39 @@ import modele.Mur;
  */
 public class VueControleurPacMan extends JFrame implements Observer {
 
-    private Jeu jeu; // référence sur une classe de modèle : permet d'accéder aux données du modèle pour le rafraichissement, permet de communiquer les actions clavier (ou souris)
+    // En rapport avec la classe Jeu
+    private Jeu jeu;
+    private final int size;
+    private boolean startgood; // permet de savoir si le jeu est démarré
+    
+    // En rapport avec l'affichage du jeu
+    private final Entite[][] lastGrille; // Pour optimiser le nombre de mises à jour d'affichage
+    private JLabel[][] tabJLabel; // Cases à afficher pour représenter le jeu
+    JPanel jeu_;
+    JLabel score;
+    JLabel vies;
 
-    private int size;
-
-    private final ImageIcon[] icoPacMan = new ImageIcon[8]; // icones affichées dans la grille
-    private final ImageIcon[] icoFantome = new ImageIcon[3];
-    private final ImageIcon[] icoMur = new ImageIcon[19];
+    // En rapport avec les icones
+    private final ImageIcon[] icoPacMan; // icones affichées dans la grille
+    private final ImageIcon[] icoFantome;
+    private final ImageIcon[] icoMur;
     private  ImageIcon icoBonus;
     private ImageIcon icoCouloir;
-    
-    private final Entite[][] lastGrille = new Entite[jeu.SIZE][jeu.SIZE];
-    private boolean startgood = false;
 
-    private JLabel[][] tabJLabel; // cases graphique (au moment du rafraichissement, chaque case va être associé à une icône, suivant ce qui est présent dans la partie modèle)
-    JComponent grilleJLabels;
+    // En rapport avec le menu
     JPanel menu;
-    
+
 
     public VueControleurPacMan() {
 
         size = Jeu.SIZE;
+        startgood = false;
+
+        lastGrille = new Entite[size][size];
+
+        icoPacMan = new ImageIcon[8];
+        icoFantome = new ImageIcon[3];
+        icoMur = new ImageIcon[19];
 
         chargerLesIcones();
         placerLesComposantsGraphiques();
@@ -69,29 +82,29 @@ public class VueControleurPacMan extends JFrame implements Observer {
     }
 
     private void ajouterEcouteurClavier() {
-        
+
         setFocusable(true);
         addKeyListener(new KeyAdapter() {
-            
+
             @Override
             public void keyPressed(KeyEvent e) {
-                
+
                 switch(e.getKeyCode()) {  // on écoute les flèches de direction du clavier
-                    
+
                     case KeyEvent.VK_LEFT:
-                        jeu.getPacman().setDirection(Direction.gauche);
+                        jeu.getPacman().setFutureDirection(Direction.gauche);
                         break;
                         
                     case KeyEvent.VK_RIGHT:
-                        jeu.getPacman().setDirection(Direction.droite);
+                        jeu.getPacman().setFutureDirection(Direction.droite);
                         break;
                         
                     case KeyEvent.VK_DOWN:
-                        jeu.getPacman().setDirection(Direction.bas);
+                        jeu.getPacman().setFutureDirection(Direction.bas);
                         break;
                         
                     case KeyEvent.VK_UP:
-                        jeu.getPacman().setDirection(Direction.haut);
+                        jeu.getPacman().setFutureDirection(Direction.haut);
                         break;
                 }
             }
@@ -161,15 +174,18 @@ public class VueControleurPacMan extends JFrame implements Observer {
 
     private void placerLesComposantsGraphiques() {
 
+        // Partie fenêtre
         setTitle("PacMan");
-        setSize(18*size, 21*size);
+        setSize(18*size, 21*size+30);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
         setLocationRelativeTo(null);
 
-        grilleJLabels = new JPanel(new GridLayout(size, size));
+        // Partie jeu -> map
+        jeu_ = new JPanel();
+        JPanel grilleJLabels = new JPanel(new GridLayout(size, size));
+        grilleJLabels.setPreferredSize(new Dimension(this.getWidth()+1, 19*size));
         tabJLabel = new JLabel[size][size];
-
         for (int x = 0; x < size; x++) {
             for (int y = 0; y < size; y++) {
                 JLabel jlab = new JLabel();
@@ -177,39 +193,51 @@ public class VueControleurPacMan extends JFrame implements Observer {
                 grilleJLabels.add(jlab);
             }
         }
+        jeu_.add(grilleJLabels);
+        
+        // Partie jeu -> barre d'infos
+        JPanel jp_barre_jeu = new JPanel(new BorderLayout());
+        jp_barre_jeu.setPreferredSize(new Dimension(this.getWidth()-50, 32));
+        score = new JLabel();
+        score.setFont(score.getFont().deriveFont(20.0f));
+        vies = new JLabel();
+        vies.setFont(vies.getFont().deriveFont(20.0f));
+        jp_barre_jeu.add(score, BorderLayout.WEST);
+        jp_barre_jeu.add(vies, BorderLayout.EAST);
+        jeu_.add(jp_barre_jeu);
 
-        // Création des conteneurs
+        // Partie menu -> création des conteneurs
         JPanel jp_image_menu = new JPanel(); // Image du haut/milieu
         JPanel jp_lancer_jeu = new JPanel(); // Bouton "Lancer le jeu"
         JPanel jp_afficher_score = new JPanel(); // Bouton "Afficher les scores"
         menu = new JPanel(); // Tous les éléments
 
-        // Espace du milieu
+        // Partie menu -> espace du milieu
         JLabel jl_fond = new JLabel();
         jl_fond.setIcon(chargerIcone("Images/accueil.png"));
         jp_image_menu.setPreferredSize(new Dimension(this.getWidth()+1, 300));
         jp_image_menu.add(jl_fond);
         jp_image_menu.setBackground(Color.black);
 
-        // Lancer le jeu
+        // Partie menu -> lancer le jeu
         JButton jb_lancer_jeu = new JButton("Lancer le jeu");
         jp_lancer_jeu.setMaximumSize(new Dimension(this.getWidth()+1, 0));
-        jp_lancer_jeu.setPreferredSize(new Dimension(this.getWidth()+1, 40));
+        jp_lancer_jeu.setPreferredSize(new Dimension(this.getWidth()+1, 42));
         jp_lancer_jeu.add(jb_lancer_jeu);
         jp_lancer_jeu.setBackground(Color.black);
         jb_lancer_jeu.addActionListener((ActionEvent ae) -> {
             lancer_jeu();
         });
 
-        // Afficher les scores
+        // Partie menu -> afficher les scores
         JButton jb_afficher_score = new JButton("Afficher les scores");
         jp_afficher_score.add(jb_afficher_score);
         jp_afficher_score.setBackground(Color.black);
         jb_afficher_score.addActionListener((ActionEvent ae) -> {
-            afficher_score();
+            afficher_scores();
         });
 
-        // Ajout des conteneurs au menu
+        // Partie menu -> ajout des conteneurs au menu
         BoxLayout bl_menu = new BoxLayout(menu, BoxLayout.Y_AXIS);
         menu.setLayout(bl_menu);
         menu.setAlignmentX(JComponent.BOTTOM_ALIGNMENT);
@@ -222,14 +250,19 @@ public class VueControleurPacMan extends JFrame implements Observer {
         add(menu);
 
     }
+    
+    private void mise_a_jour_barre_jeu() {
+        score.setText("Score : " + jeu.getPacman().getScore());
+        vies.setText("Vies : " + jeu.getPacman().getVies());
+    }
 
     private void lancer_jeu() {
         System.out.println("Lancer le jeu");
 
         menu.setVisible(false);
         remove(menu);
-        add(grilleJLabels);
-        grilleJLabels.setVisible(true);
+        add(jeu_);
+        jeu_.setVisible(true);
         
         chargerJeu();
         jeu.start();
@@ -244,16 +277,16 @@ public class VueControleurPacMan extends JFrame implements Observer {
             Logger.getLogger(Pacman.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        grilleJLabels.setVisible(false);
-        remove(grilleJLabels);
+        jeu_.setVisible(false);
+        remove(jeu_);
         add(menu);
         menu.setVisible(true);
         
 
     }
 
-    private void afficher_score() {
-        System.out.println("Afficher le score");
+    private void afficher_scores() {
+        System.out.println("Afficher le tableau des scores");
     }
 
     /**
@@ -290,6 +323,7 @@ public class VueControleurPacMan extends JFrame implements Observer {
         }
         startgood = true;
         //System.out.println("\n");
+        mise_a_jour_barre_jeu();
     }
 
     @Override
