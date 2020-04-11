@@ -15,7 +15,6 @@ import java.util.Random;
 public class Fantome extends Entite {
 
     private Random r = new Random();
-    private boolean vulnerable;
 
     public Fantome(Jeu _jeu, Point p) {
         super(_jeu, p);
@@ -25,13 +24,12 @@ public class Fantome extends Entite {
     @Override
     public void choixDirection() {
         
-        // développer une stratégie plus détaillée (utiliser regarderDansLaDirection(Entité, Direction) , ajouter murs, etc.)
-        switch (r.nextInt(1)) {
+        switch (r.nextInt(2)) {
             case 0:
-                d = Direction.droite;
+                d = Direction.gauche;
                 break;
             case 1:
-                d = Direction.bas;
+                d = Direction.haut;
                 break;
         }
     }

@@ -23,12 +23,14 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import modele.Bonus;
+import modele.Boule;
 import modele.Direction;
 import modele.Entite;
 import modele.Fantome;
 import modele.Jeu;
 import modele.Pacman;
 import modele.Mur;
+import modele.SuperBoule;
 
 
 /** Cette classe a deux fonctions :
@@ -42,21 +44,24 @@ public class VueControleurPacMan extends JFrame implements Observer {
     // En rapport avec la classe Jeu
     private Jeu jeu;
     private final int size;
-    private boolean startgood; // permet de savoir si le jeu est démarré
+    private boolean startgood; // permet de savoir si le jeu est en cours
     
     // En rapport avec l'affichage du jeu
     private final Entite[][] lastGrille; // Pour optimiser le nombre de mises à jour d'affichage
     private JLabel[][] tabJLabel; // Cases à afficher pour représenter le jeu
     JPanel jeu_;
     JLabel score;
+    JLabel niveau;
     JLabel vies;
 
     // En rapport avec les icones
     private final ImageIcon[] icoPacMan; // icones affichées dans la grille
     private final ImageIcon[] icoFantome;
     private final ImageIcon[] icoMur;
-    private  ImageIcon icoBonus;
+    private final ImageIcon[] icoFood;
+    private final ImageIcon[] icoBonus;
     private ImageIcon icoCouloir;
+    
 
     // En rapport avec le menu
     JPanel menu;
@@ -72,6 +77,8 @@ public class VueControleurPacMan extends JFrame implements Observer {
         icoPacMan = new ImageIcon[8];
         icoFantome = new ImageIcon[3];
         icoMur = new ImageIcon[19];
+        icoFood = new ImageIcon[2];
+        icoBonus = new ImageIcon[3];
 
         chargerLesIcones();
         placerLesComposantsGraphiques();
@@ -88,24 +95,26 @@ public class VueControleurPacMan extends JFrame implements Observer {
 
             @Override
             public void keyPressed(KeyEvent e) {
+                
+                if (startgood) {
+                    switch(e.getKeyCode()) {  // on écoute les flèches de direction du clavier
 
-                switch(e.getKeyCode()) {  // on écoute les flèches de direction du clavier
+                        case KeyEvent.VK_LEFT:
+                            jeu.getPacman().setFutureDirection(Direction.gauche);
+                            break;
 
-                    case KeyEvent.VK_LEFT:
-                        jeu.getPacman().setFutureDirection(Direction.gauche);
-                        break;
-                        
-                    case KeyEvent.VK_RIGHT:
-                        jeu.getPacman().setFutureDirection(Direction.droite);
-                        break;
-                        
-                    case KeyEvent.VK_DOWN:
-                        jeu.getPacman().setFutureDirection(Direction.bas);
-                        break;
-                        
-                    case KeyEvent.VK_UP:
-                        jeu.getPacman().setFutureDirection(Direction.haut);
-                        break;
+                        case KeyEvent.VK_RIGHT:
+                            jeu.getPacman().setFutureDirection(Direction.droite);
+                            break;
+
+                        case KeyEvent.VK_DOWN:
+                            jeu.getPacman().setFutureDirection(Direction.bas);
+                            break;
+
+                        case KeyEvent.VK_UP:
+                            jeu.getPacman().setFutureDirection(Direction.haut);
+                            break;
+                    }
                 }
             }
         });
@@ -128,7 +137,10 @@ public class VueControleurPacMan extends JFrame implements Observer {
         icoPacMan[7] = chargerIcone("Images/BigRight.png");
 
         icoCouloir = chargerIcone("Images/Couloir.png");
-        icoBonus = chargerIcone("Images/bonus.png");
+
+        icoBonus[0] = chargerIcone("Images/bonus1.png");
+        icoBonus[1] = chargerIcone("Images/bonus2.png");
+        icoBonus[2] = chargerIcone("Images/bonus3.png");
 
         //Mur
         icoMur[0] = chargerIcone("Images/wall.png");
@@ -157,6 +169,10 @@ public class VueControleurPacMan extends JFrame implements Observer {
         icoFantome[0] = chargerIcone("Images/FonRedRight.png");
         icoFantome[1] = chargerIcone("Images/FonPinkRight.png");
         icoFantome[2] = chargerIcone("Images/FonBleuRight.png");
+        
+        // Food
+        icoFood[0] = chargerIcone("Images/food.png");
+        icoFood[1] = chargerIcone("Images/SuperFood.png");
 
     }
 
@@ -185,6 +201,7 @@ public class VueControleurPacMan extends JFrame implements Observer {
         jeu_ = new JPanel();
         JPanel grilleJLabels = new JPanel(new GridLayout(size, size));
         grilleJLabels.setPreferredSize(new Dimension(this.getWidth()+1, 19*size));
+        grilleJLabels.setBackground(Color.white);
         tabJLabel = new JLabel[size][size];
         for (int x = 0; x < size; x++) {
             for (int y = 0; y < size; y++) {
@@ -200,9 +217,13 @@ public class VueControleurPacMan extends JFrame implements Observer {
         jp_barre_jeu.setPreferredSize(new Dimension(this.getWidth()-50, 32));
         score = new JLabel();
         score.setFont(score.getFont().deriveFont(20.0f));
+        niveau = new JLabel();
+        niveau.setFont(niveau.getFont().deriveFont(20.0f));
+        niveau.setHorizontalAlignment(JLabel.CENTER);
         vies = new JLabel();
         vies.setFont(vies.getFont().deriveFont(20.0f));
         jp_barre_jeu.add(score, BorderLayout.WEST);
+        jp_barre_jeu.add(niveau, BorderLayout.CENTER);
         jp_barre_jeu.add(vies, BorderLayout.EAST);
         jeu_.add(jp_barre_jeu);
 
@@ -253,6 +274,7 @@ public class VueControleurPacMan extends JFrame implements Observer {
     
     private void mise_a_jour_barre_jeu() {
         score.setText("Score : " + jeu.getPacman().getScore());
+        niveau.setText("Niveau : " + jeu.getNiveau() + "/3");
         vies.setText("Vies : " + jeu.getPacman().getVies());
     }
 
@@ -272,11 +294,11 @@ public class VueControleurPacMan extends JFrame implements Observer {
     private void retour_menu() {
         System.out.println("Retourner au menu");
         try {
-            Thread.sleep(2000);
+            Thread.sleep(1000);
         } catch (InterruptedException ex) {
             Logger.getLogger(Pacman.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         jeu_.setVisible(false);
         remove(jeu_);
         add(menu);
@@ -299,7 +321,7 @@ public class VueControleurPacMan extends JFrame implements Observer {
                 if (!startgood || lastGrille[x][y] != jeu.getGrille()[x][y]) {
                     //System.out.println("Changement en " + x + ", " + y);
                     if (jeu.getGrille()[x][y] instanceof Bonus) {
-                        tabJLabel[x][y].setIcon(icoBonus);
+                        tabJLabel[x][y].setIcon(icoBonus[jeu.getNiveau()-1]);
                     }
                     else if (jeu.getGrille()[x][y] instanceof Pacman) {
                         tabJLabel[x][y].setIcon(
@@ -313,6 +335,12 @@ public class VueControleurPacMan extends JFrame implements Observer {
                         tabJLabel[x][y].setIcon(
                             icoMur[ ((Mur) jeu.getGrille()[x][y]).getTypeMur() ]
                         );
+                    }
+                    else if (jeu.getGrille()[x][y] instanceof SuperBoule) {
+                        tabJLabel[x][y].setIcon(icoFood[1]);
+                    }
+                    else if (jeu.getGrille()[x][y] instanceof Boule) {
+                        tabJLabel[x][y].setIcon(icoFood[0]);
                     }
                     else {
                         tabJLabel[x][y].setIcon(icoCouloir);

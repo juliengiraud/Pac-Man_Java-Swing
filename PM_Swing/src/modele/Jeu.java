@@ -11,30 +11,33 @@ import java.util.Observable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/** La classe Jeu a deux fonctions 
- *  (1) Gérer les aspects du jeu : condition de défaite, victoire, nombre de vies
- *  (2) Gérer les coordonnées des entités du monde : déplacements, collisions, perception des entités, ... 
- *
- * @author freder
- */
 public class Jeu extends Observable implements Runnable {
 
     public static final int SIZE = 25;
 
     private Pacman pm;
     private Bonus bonus;
-    private final Fantome[] fantome = new Fantome[4];
-    private Mur mur;
+    private final Fantome[] fantome;
+    private int niveau;
     
     private int partie_on;
+    private boolean starting;
 
-    private final Entite[][] grilleEntites = new Entite[SIZE][SIZE]; // permet de récupérer une entité à partir de ses coordonnées
-    private final ArrayList<Entite> entites = new ArrayList<>();
-    
-    // TODO : ajouter les murs, couloir, PacGums, et adapter l'ensemble des fonctions (prévoir le raffraichissement également du côté de la vue)
+    private final Entite[][] grilleEntites; // entité à afficher sur des coordonnées
+    private final ArrayList<Entite> entites;
 
     public Jeu() {
+        fantome = new Fantome[4];
+        niveau = 1;
+        starting = true;
+        grilleEntites = new Entite[SIZE][SIZE];
+        entites = new ArrayList<>();
+        
         initialisationDesEntites();
+    }
+    
+    public int getNiveau() {
+        return niveau;
     }
     
     public Entite[][] getGrille() {
@@ -43,10 +46,6 @@ public class Jeu extends Observable implements Runnable {
     
     public Pacman getPacman() {
         return pm;
-    }
-    
-    public Mur getMur() {
-        return mur;
     }
     
     public Bonus getBonus() {
@@ -59,19 +58,67 @@ public class Jeu extends Observable implements Runnable {
     
     private void initialisationDesEntites() {
 
-        pm = new Pacman(this, new Point(0, 12));
-        grilleEntites[0][12] = pm;
-        entites.add(pm);
+        if (niveau == 1) {
+            pm = new Pacman(this, new Point(0, 12));
+            grilleEntites[0][12] = pm;
+            entites.add(pm);
+        }
         
         fantome[0] = new Fantome(this, new Point(12, 12));
         grilleEntites[12][12] = fantome[0];
         entites.add(fantome[0]);
         
-        bonus = new Bonus(this, new Point(5, 5), 100);
-        grilleEntites[5][5]= bonus;
+        bonus = new Bonus(this, new Point(5, 5), niveau);
+        grilleEntites[5][5] = bonus;
         entites.add(bonus);
 
-        initialisationMap();
+        if (niveau == 1)
+            initialisationMap();
+        
+        initialisationBoules();
+    }
+    
+    private void initialisationBoules() {
+        
+        ArrayList<Point> interdits = new ArrayList<>();
+
+        ajouterSuperBoule(3, 6);
+        ajouterSuperBoule(3, 21);
+        ajouterSuperBoule(20, 4);
+        ajouterSuperBoule(21, 21);
+        
+        interdits.add(new Point(3, 6));
+        interdits.add(new Point(3, 21));
+        interdits.add(new Point(20, 4));
+        interdits.add(new Point(21, 21));
+
+        // Les coo du spawn des fantomes
+        interdits.add(new Point(10, 11));
+        interdits.add(new Point(11, 11));
+        interdits.add(new Point(12, 11));
+        interdits.add(new Point(10, 12));
+        interdits.add(new Point(11, 12));
+        interdits.add(new Point(12, 12));
+
+        interdits.add(bonus.coo);
+
+        for (int x = 1; x <= 23; x++)
+            for (int y = 1; y <= 23; y++)
+            //for (int y = 1; y <= 1; y++)
+                if (!interdits.contains(new Point(x, y)) && !(grilleEntites[x][y] instanceof Mur))
+                    ajouterBoule(x, y);
+    }
+
+    private void ajouterBoule(int x, int y) {
+        Boule boule = new Boule(this, new Point(x, y));
+        grilleEntites[x][y]= boule;
+        entites.add(boule);
+    }
+
+    private void ajouterSuperBoule(int x, int y) {
+        SuperBoule boule = new SuperBoule(this, new Point(x, y));
+        grilleEntites[x][y]= boule;
+        entites.add(boule);
     }
 
     private void initialisationMap() {
@@ -341,27 +388,16 @@ public class Jeu extends Observable implements Runnable {
 
     private void ajouterMur(int x, int y, int type)
     {
-        mur = new Mur(this, new Point(x, y), type);
+        Mur mur = new Mur(this, new Point(x, y), type);
         grilleEntites[x][y]= mur;
         entites.add(mur);
     }
 
-    /** Permet a une entité  de percevoir sont environnement proche et de définir sa strétégie de déplacement 
-     * (fonctionalité utilisée dans choixDirection() de Fantôme)
-     * @param e
-     * @param d
-     * @return 
-     */
     public Object regarderDansLaDirection(Entite e, Direction d) {
         Point positionEntite = e.coo;
         return objetALaPosition(calculerPointCible(positionEntite, d));
     }
 
-    /** Si le déclacement de l'entité est autorisé (pas de mur ou autre entité), il est réalisé
-     * @param e
-     * @param d
-     * @return 
-     */
     public boolean deplacerEntite(Entite e, Direction d) {
 
         Point pCourant = e.coo;
@@ -386,41 +422,60 @@ public class Jeu extends Observable implements Runnable {
     }
 
     private Entite gestionCollision(Entite src, Entite dest) { // Gère le trantement lorsque deux entités se supperposent
+        
+        if (src == dest) // Gestion direction neutre (Murs, boules, bonus)
+            return src;
+        
+        if (dest instanceof Mur) // Gestion Mur
+            return null;
+        
+        if (src == bonus) // Le bonus apparait au moment où une entité arrive dessus
+            return dest;
+        
+        if (src instanceof Boule)
+            return dest;
 
-        if (dest == bonus) { // On va arriver aux coordonnées du bonus
-            if (src == pm) { // Si on est le joueur
-                pm.manger(bonus); // "pacman mange le bonus"
+        if (src == pm) { // C'est PACMAN qui se déplace
+            if (dest instanceof Mangeable) {
+                pm.manger((Mangeable) dest);
                 return pm;
             }
-            else { // Un fantome arrive sur le bonus
-                return dest; // Gestion "fantome sur le bonus"
-            }
-        }
-        if (dest instanceof Fantome) { // On va arriver sur un fantôme
-            if (src == pm) { // Si on est le joueur
+            else {
                 pm.tuer(); // Gestion "pacman arrive sur un fantôme"
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(Pacman.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                return dest;
-            }
-            else { // Un fantôme arrive sur un autre fantôme
                 return dest;
             }
         }
+        
+        if (src instanceof Fantome) {
+            return src;
+        }
+
+        System.out.println("Problème de collision avec " + src.getClass() + " et " + dest.getClass());
         return null;
     }
 
     private Point calculerPointCible(Point pCourant, Direction d) {
         Point pCible = null;
         switch(d) {
-            case haut: pCible = new Point(pCourant.x, (pCourant.y + SIZE - 1) % SIZE); break;
-            case bas: pCible = new Point(pCourant.x, (pCourant.y + 1) % SIZE); break;
-            case gauche: pCible = new Point((pCourant.x + SIZE - 1) % SIZE, pCourant.y); break;
-            case droite: pCible = new Point((pCourant.x + 1) % SIZE, pCourant.y); break;
-            case neutre: pCible = pCourant; break;
+            case haut:
+                pCible = new Point(pCourant.x, (pCourant.y + SIZE - 1) % SIZE);
+                break;
+
+            case bas:
+                pCible = new Point(pCourant.x, (pCourant.y + 1) % SIZE);
+                break;
+
+            case gauche:
+                pCible = new Point((pCourant.x + SIZE - 1) % SIZE, pCourant.y);
+                break;
+
+            case droite:
+                pCible = new Point((pCourant.x + 1) % SIZE, pCourant.y);
+                break;
+
+            case neutre:
+                pCible = pCourant;
+                break;
         }
 
         return pCible;
@@ -461,18 +516,87 @@ public class Jeu extends Observable implements Runnable {
 
     }
 
-    public void stop() {
+    protected void stop() {
 
         partie_on--;
+    }
+    
+    protected boolean isStarting() {
+        return starting;
+    }
+    
+    protected void setStarting() {
+        starting = true;
+    }
+    
+    private boolean niveauFini() {
+        for (Entite e : entites)
+            if (e instanceof Boule)
+                return false;
+        return true;
+    }
+    
+    private void nextLevel() {
+        niveau++;
+        pm.addVie();
+        setStarting();
+        setChanged();
+        notifyObservers();
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Pacman.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        reinitialisationDesEntites();
+    }
+    
+    private void reinitialisationDesEntites() {
+        
+        if (niveau > 3) {
+            stop();
+            return;
+        }
+        
+        for (int i = 0; i < entites.size(); i++) {
+            Entite e = entites.get(i);
+            if (e instanceof Fantome)
+                entites.remove(e);
+        }
+        entites.remove(bonus);
+        pm.respawn();
+        
+        initialisationDesEntites();
     }
 
     @Override
     public void run() {
 
         while (partie_on > 0) {
-            for (Entite e : entites) {
-                e.run();
+
+            // Marque une petite pause avant le début du jeu et après chaque respawn
+            if (starting) {
+                setChanged();
+                notifyObservers();
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Pacman.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                starting = false;
             }
+
+            // Enlève les boules à supprimer
+            // Run les autres entités
+            for (int i = 0; i < entites.size(); i++) {
+                Entite e = entites.get(i);
+                if (e instanceof Boule && ((Boule) e).isManger())
+                    entites.remove(e);
+                else
+                    e.run();
+            }
+
+            if (niveauFini())
+                nextLevel();
 
             setChanged();
             notifyObservers(); // notification de l'observer pour le raffraichisssement graphique

@@ -25,19 +25,25 @@ public class Pacman extends Entite {
         spawn = p;
     }
     
-    private void respawn() {
+    public void respawn() {
         coo = spawn;
         d = Direction.droite;
         futureDirection = null;
+        jeu.deplacerEntite(this, Direction.neutre);
     }
     
     public void setBig() {
         big = true;
     }
+    
+    public void addVie() {
+        vie++;
+    }
 
     public void tuer() {
         if (vie > 0) {
             vie--;
+            jeu.setStarting();
             respawn();
         }
         else {
@@ -49,10 +55,6 @@ public class Pacman extends Entite {
     private void augmenterScore(int s) {
         score += s;
     }
-
-    /*public void setDirection(Direction _d) {
-        d = _d;
-    }*/
     
     public void setFutureDirection(Direction d) {
         futureDirection = d;
@@ -79,7 +81,7 @@ public class Pacman extends Entite {
             if (d == Direction.droite)
                 return 7;
         }
-        return -1;
+        return 3;
     }
 
     public int getScore() {
@@ -92,7 +94,7 @@ public class Pacman extends Entite {
     
     public void manger(Mangeable objet) {
         augmenterScore(objet.getScore());
-        objet.getMange();
+        objet.getManger();
     }
 
     @Override

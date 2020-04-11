@@ -18,11 +18,12 @@ public class Bonus extends Entite implements Mangeable {
     private final int score;
     private boolean visible;
     
-    public Bonus(Jeu _jeu, Point p, int s) {
+    public Bonus(Jeu _jeu, Point p, int n) {
         super(_jeu, p);
         temps = 0;
         visible = false;
-        score = s;
+        int[] scores = {100, 200, 500};
+        score = scores[n-1];
     }
     
     private void incremente() {
@@ -53,7 +54,7 @@ public class Bonus extends Entite implements Mangeable {
     public void choixDirection() {}
 
     @Override
-    public void getMange() {
+    public void getManger() {
         reinitialiser();
     }
     
