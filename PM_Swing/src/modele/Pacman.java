@@ -81,7 +81,7 @@ public class Pacman extends Entite {
             if (d == Direction.droite)
                 return 7;
         }
-        return 3;
+        return 3; // Direction par défaut
     }
 
     public int getScore() {

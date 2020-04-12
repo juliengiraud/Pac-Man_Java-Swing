@@ -5,6 +5,7 @@
  */
 package modele;
 
+import java.awt.Color;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Observable;
@@ -17,7 +18,7 @@ public class Jeu extends Observable implements Runnable {
 
     private Pacman pm;
     private Bonus bonus;
-    private final Fantome[] fantome;
+    private final Fantome[] fantomes;
     private int niveau;
     
     private int partie_on;
@@ -27,7 +28,7 @@ public class Jeu extends Observable implements Runnable {
     private final ArrayList<Entite> entites;
 
     public Jeu() {
-        fantome = new Fantome[4];
+        fantomes = new Fantome[3];
         niveau = 1;
         starting = true;
         grilleEntites = new Entite[SIZE][SIZE];
@@ -64,9 +65,17 @@ public class Jeu extends Observable implements Runnable {
             entites.add(pm);
         }
         
-        fantome[0] = new Fantome(this, new Point(12, 12));
-        grilleEntites[12][12] = fantome[0];
-        entites.add(fantome[0]);
+        fantomes[0] = new Fantome(this, new Point(12, 12), Color.PINK);
+        grilleEntites[12][12] = fantomes[0];
+        entites.add(fantomes[0]);
+        
+        fantomes[1] = new Fantome(this, new Point(11, 12), Color.RED);
+        grilleEntites[11][12] = fantomes[1];
+        entites.add(fantomes[1]);
+        
+        fantomes[2] = new Fantome(this, new Point(10, 12), Color.BLUE);
+        grilleEntites[10][12] = fantomes[2];
+        entites.add(fantomes[2]);
         
         bonus = new Bonus(this, new Point(5, 5), niveau);
         grilleEntites[5][5] = bonus;
@@ -441,17 +450,28 @@ public class Jeu extends Observable implements Runnable {
                 return pm;
             }
             else {
-                pm.tuer(); // Gestion "pacman arrive sur un fantôme"
-                return dest;
+                return gestionCollisionPacmanFantome((Fantome) dest); // Gestion "pacman arrive sur un fantôme"
             }
         }
         
         if (src instanceof Fantome) {
+            if (dest == pm) {
+                return gestionCollisionPacmanFantome((Fantome) src);
+            }
             return src;
         }
 
         System.out.println("Problème de collision avec " + src.getClass() + " et " + dest.getClass());
         return null;
+    }
+    
+    private Entite gestionCollisionPacmanFantome(Fantome dest) {
+        if (!dest.isVulnerable()) {
+            pm.tuer();
+            return dest;
+        }
+        
+        return pm; // Pas encore géré
     }
 
     private Point calculerPointCible(Point pCourant, Direction d) {
@@ -575,10 +595,29 @@ public class Jeu extends Observable implements Runnable {
 
             // Marque une petite pause avant le début du jeu et après chaque respawn
             if (starting) {
+                for (int x = 0; x < 23; x++)
+                    for (int y = 0; y < 23; y++)
+                        if (grilleEntites[x][y] instanceof Fantome)
+                            grilleEntites[x][y] = null;
+                entites.remove(fantomes[0]);
+                entites.remove(fantomes[1]);
+                entites.remove(fantomes[2]);
+                fantomes[0] = new Fantome(this, new Point(12, 12), Color.PINK);
+                grilleEntites[12][12] = fantomes[0];
+                entites.add(fantomes[0]);
+
+                fantomes[1] = new Fantome(this, new Point(11, 12), Color.RED);
+                grilleEntites[11][12] = fantomes[1];
+                entites.add(fantomes[1]);
+
+                fantomes[2] = new Fantome(this, new Point(10, 12), Color.BLUE);
+                grilleEntites[10][12] = fantomes[2];
+                entites.add(fantomes[2]);
+
                 setChanged();
                 notifyObservers();
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(5000);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(Pacman.class.getName()).log(Level.SEVERE, null, ex);
                 }

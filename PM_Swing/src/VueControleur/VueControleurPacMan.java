@@ -75,7 +75,7 @@ public class VueControleurPacMan extends JFrame implements Observer {
         lastGrille = new Entite[size][size];
 
         icoPacMan = new ImageIcon[8];
-        icoFantome = new ImageIcon[3];
+        icoFantome = new ImageIcon[14];
         icoMur = new ImageIcon[19];
         icoFood = new ImageIcon[2];
         icoBonus = new ImageIcon[3];
@@ -166,9 +166,20 @@ public class VueControleurPacMan extends JFrame implements Observer {
         icoMur[18] = chargerIcone("Images/coinG.png"); // coin[5] -> mur[18]
 
         //Fantome 
-        icoFantome[0] = chargerIcone("Images/FonRedRight.png");
-        icoFantome[1] = chargerIcone("Images/FonPinkRight.png");
+        icoFantome[0] = chargerIcone("Images/FonBleuDown.png");
+        icoFantome[1] = chargerIcone("Images/FonBleuLeft.png");
         icoFantome[2] = chargerIcone("Images/FonBleuRight.png");
+        icoFantome[3] = chargerIcone("Images/FonBleuUP.png");
+        icoFantome[4] = chargerIcone("Images/FonRedDown.png");
+        icoFantome[5] = chargerIcone("Images/FonRedLeft.png");
+        icoFantome[6] = chargerIcone("Images/FonRedRight.png");
+        icoFantome[7] = chargerIcone("Images/FonRedUp.png");
+        icoFantome[8] = chargerIcone("Images/FonPinkDown.png");
+        icoFantome[9] = chargerIcone("Images/FonPinkLeft.png");
+        icoFantome[10] = chargerIcone("Images/FonPinkRight.png");
+        icoFantome[11] = chargerIcone("Images/FonPinkUp.png");
+        icoFantome[12] = chargerIcone("Images/End.png");
+        icoFantome[13] = chargerIcone("Images/eaten.png");
         
         // Food
         icoFood[0] = chargerIcone("Images/food.png");
@@ -329,7 +340,10 @@ public class VueControleurPacMan extends JFrame implements Observer {
                         );
                     }
                     else if (jeu.getGrille()[x][y] instanceof Fantome) {
-                        tabJLabel[x][y].setIcon(icoFantome[0]);
+                        //tabJLabel[x][y].setIcon(icoFantome[0]);
+                        tabJLabel[x][y].setIcon(
+                            icoFantome[ ((Fantome) jeu.getGrille()[x][y]).getState() ]
+                        );
                     }
                     else if (jeu.getGrille()[x][y] instanceof Mur) {
                         tabJLabel[x][y].setIcon(
