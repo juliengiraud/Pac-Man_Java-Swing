@@ -10,6 +10,7 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.logging.Level;
@@ -53,6 +54,12 @@ public class VueControleurPacMan extends JFrame implements Observer {
     JLabel score;
     JLabel niveau;
     JLabel vies;
+    
+    // En rapport avec le scoreboard
+    JPanel scoreboard_;
+    JPanel scoreboard_container;
+    ArrayList<int[]> scoreboard;
+    int[] scoreboard_tmp;
 
     // En rapport avec les icones
     private final ImageIcon[] icoPacMan; // icones affichées dans la grille
@@ -61,19 +68,20 @@ public class VueControleurPacMan extends JFrame implements Observer {
     private final ImageIcon[] icoFood;
     private final ImageIcon[] icoBonus;
     private ImageIcon icoCouloir;
-    
 
     // En rapport avec le menu
     JPanel menu;
 
-
     public VueControleurPacMan() {
 
         size = Jeu.SIZE;
-        startgood = false;
+        startgood = false; // Indique si la partie est lancée
 
-        lastGrille = new Entite[size][size];
+        lastGrille = new Entite[size][size]; // Pour minimiser les mises à jour graphiques
 
+        scoreboard = new ArrayList<>();
+        scoreboard_tmp = new int[2];
+        
         icoPacMan = new ImageIcon[8];
         icoFantome = new ImageIcon[14];
         icoMur = new ImageIcon[19];
@@ -90,7 +98,7 @@ public class VueControleurPacMan extends JFrame implements Observer {
 
     private void ajouterEcouteurClavier() {
 
-        setFocusable(true);
+        setFocusable(true); // À cause des changements de focus
         addKeyListener(new KeyAdapter() {
 
             @Override
@@ -199,16 +207,16 @@ public class VueControleurPacMan extends JFrame implements Observer {
         return new ImageIcon(image);
     }
 
-    private void placerLesComposantsGraphiques() {
-
-        // Partie fenêtre
+    private void creerFenetre() {
         setTitle("PacMan");
         setSize(18*size, 21*size+30);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
-        setLocationRelativeTo(null);
-
-        // Partie jeu -> map
+        setLocationRelativeTo(null); // Pour la placer au centre
+    }
+    
+    private void creerVueMap() {
+        
         jeu_ = new JPanel();
         JPanel grilleJLabels = new JPanel(new GridLayout(size, size));
         grilleJLabels.setPreferredSize(new Dimension(this.getWidth()+1, 19*size));
@@ -222,10 +230,12 @@ public class VueControleurPacMan extends JFrame implements Observer {
             }
         }
         jeu_.add(grilleJLabels);
+    }
+    
+    private void creerVueBarre() {
         
-        // Partie jeu -> barre d'infos
-        JPanel jp_barre_jeu = new JPanel(new BorderLayout());
-        jp_barre_jeu.setPreferredSize(new Dimension(this.getWidth()-50, 32));
+        JPanel barre = new JPanel(new BorderLayout());
+        barre.setPreferredSize(new Dimension(this.getWidth()-50, 32));
         score = new JLabel();
         score.setFont(score.getFont().deriveFont(20.0f));
         niveau = new JLabel();
@@ -233,25 +243,28 @@ public class VueControleurPacMan extends JFrame implements Observer {
         niveau.setHorizontalAlignment(JLabel.CENTER);
         vies = new JLabel();
         vies.setFont(vies.getFont().deriveFont(20.0f));
-        jp_barre_jeu.add(score, BorderLayout.WEST);
-        jp_barre_jeu.add(niveau, BorderLayout.CENTER);
-        jp_barre_jeu.add(vies, BorderLayout.EAST);
-        jeu_.add(jp_barre_jeu);
-
-        // Partie menu -> création des conteneurs
+        barre.add(score, BorderLayout.WEST);
+        barre.add(niveau, BorderLayout.CENTER);
+        barre.add(vies, BorderLayout.EAST);
+        jeu_.add(barre);
+    }
+    
+    private void creerMenu() {
+        
+        // Création des conteneurs
         JPanel jp_image_menu = new JPanel(); // Image du haut/milieu
         JPanel jp_lancer_jeu = new JPanel(); // Bouton "Lancer le jeu"
         JPanel jp_afficher_score = new JPanel(); // Bouton "Afficher les scores"
         menu = new JPanel(); // Tous les éléments
 
-        // Partie menu -> espace du milieu
+        // Espace du milieu
         JLabel jl_fond = new JLabel();
         jl_fond.setIcon(chargerIcone("Images/accueil.png"));
         jp_image_menu.setPreferredSize(new Dimension(this.getWidth()+1, 300));
         jp_image_menu.add(jl_fond);
         jp_image_menu.setBackground(Color.black);
 
-        // Partie menu -> lancer le jeu
+        // Lancer le jeu
         JButton jb_lancer_jeu = new JButton("Lancer le jeu");
         jp_lancer_jeu.setMaximumSize(new Dimension(this.getWidth()+1, 0));
         jp_lancer_jeu.setPreferredSize(new Dimension(this.getWidth()+1, 42));
@@ -261,7 +274,7 @@ public class VueControleurPacMan extends JFrame implements Observer {
             lancer_jeu();
         });
 
-        // Partie menu -> afficher les scores
+        // Afficher les scores
         JButton jb_afficher_score = new JButton("Afficher les scores");
         jp_afficher_score.add(jb_afficher_score);
         jp_afficher_score.setBackground(Color.black);
@@ -269,7 +282,7 @@ public class VueControleurPacMan extends JFrame implements Observer {
             afficher_scores();
         });
 
-        // Partie menu -> ajout des conteneurs au menu
+        // Ajout des conteneurs au menu
         BoxLayout bl_menu = new BoxLayout(menu, BoxLayout.Y_AXIS);
         menu.setLayout(bl_menu);
         menu.setAlignmentX(JComponent.BOTTOM_ALIGNMENT);
@@ -280,6 +293,59 @@ public class VueControleurPacMan extends JFrame implements Observer {
 
         // Ajout du menu à la vue
         add(menu);
+    }
+
+    private void creerTableauDesScores() {
+        
+        scoreboard_container = new JPanel();
+        scoreboard_container.setLayout(new BoxLayout(scoreboard_container, BoxLayout.Y_AXIS));
+        scoreboard_container.setBackground(Color.black);
+        
+        scoreboard_ = new JPanel();
+        scoreboard_.setBackground(Color.black);
+        JLabel label = new JLabel("Niveau    Score");
+        label.setFont(score.getFont().deriveFont(15.0f));
+        label.setBackground(Color.black);
+        label.setHorizontalAlignment(JLabel.CENTER);
+        label.setVerticalAlignment(JLabel.BOTTOM);
+        label.setPreferredSize(new Dimension(this.getWidth()+1, 50));
+        label.setForeground(Color.white);
+        scoreboard_.add(label);
+        scoreboard_container.add(scoreboard_);
+        
+        // Afficher les scores
+        JButton jb_retour_menu = new JButton("Retour au menu");
+        jb_retour_menu.setAlignmentX(CENTER_ALIGNMENT);
+        scoreboard_container.setAlignmentX(CENTER_ALIGNMENT);
+        jb_retour_menu.addActionListener((ActionEvent ae) -> {
+            retour_menu_depuis_scoreboard();
+        });
+        scoreboard_container.add(jb_retour_menu);
+        
+        JLabel space = new JLabel("");
+        space.setPreferredSize(new Dimension(this.getWidth(), 80));
+        scoreboard_container.add(space);
+
+    }
+    
+    private void retour_menu_depuis_scoreboard() {
+        scoreboard_container.setVisible(false);
+        remove(scoreboard_container);
+        add(menu);
+        menu.setVisible(true);
+    }
+    
+    private void placerLesComposantsGraphiques() {
+
+        creerFenetre();
+        
+        creerVueMap(); // Partie jeu -> map
+        
+        creerVueBarre(); // Partie jeu -> barre d'infos
+        
+        creerTableauDesScores();
+        
+        creerMenu();
 
     }
 
@@ -287,10 +353,40 @@ public class VueControleurPacMan extends JFrame implements Observer {
         score.setText("Score : " + jeu.getPacman().getScore());
         niveau.setText("Niveau : " + jeu.getNiveau() + "/3");
         vies.setText("Vies : " + jeu.getPacman().getVies());
+        
+        // Sauvegarde des scores de la partie
+        scoreboard_tmp[0] = jeu.getNiveau();
+        scoreboard_tmp[1] = jeu.getPacman().getScore();
+    }
+    
+    private void enregistreScore() {
+        int[] tmp = {scoreboard_tmp[0], scoreboard_tmp[1]};
+        scoreboard.add(tmp);
+    }
+    
+    private void chargerScores() {
+        
+        for (int[] scores : scoreboard) {
+            JPanel l = new JPanel();
+            l.setBackground(Color.black);
+            l.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+            JLabel l1 = new JLabel(scores[0] + "/3       ");
+            JLabel l2 = new JLabel("   " + scores[1]);
+            l1.setPreferredSize(new Dimension(this.getWidth()/2, 15));
+            l2.setPreferredSize(new Dimension(this.getWidth()/2, 15));
+            l1.setFont(score.getFont().deriveFont(15.0f));
+            l2.setFont(score.getFont().deriveFont(15.0f));
+            l1.setHorizontalAlignment(JLabel.RIGHT);
+            l2.setHorizontalAlignment(JLabel.LEFT);
+            l1.setForeground(Color.white);
+            l2.setForeground(Color.white);
+            l.add(l1);
+            l.add(l2);
+            scoreboard_.add(l);
+        }
     }
 
     private void lancer_jeu() {
-        System.out.println("Lancer le jeu");
 
         menu.setVisible(false);
         remove(menu);
@@ -303,7 +399,7 @@ public class VueControleurPacMan extends JFrame implements Observer {
     }
 
     private void retour_menu() {
-        System.out.println("Retourner au menu");
+
         try {
             Thread.sleep(1000);
         } catch (InterruptedException ex) {
@@ -315,16 +411,20 @@ public class VueControleurPacMan extends JFrame implements Observer {
         add(menu);
         menu.setVisible(true);
         
+        enregistreScore();
 
     }
 
     private void afficher_scores() {
-        System.out.println("Afficher le tableau des scores");
+        menu.setVisible(false);
+        remove(menu);
+        
+        chargerScores();
+        
+        add(scoreboard_container);
+        scoreboard_container.setVisible(true);
     }
 
-    /**
-     * Il y a une grille du côté du modèle ( jeu.getGrille() ) et une grille du côté de la vue (tabJLabel)
-     */
     private void mettreAJourAffichage() {
 
         for (int x = 0; x < size; x++) {
