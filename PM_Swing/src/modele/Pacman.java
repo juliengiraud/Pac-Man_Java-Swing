@@ -1,41 +1,35 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package modele;
 
 import java.awt.Point;
 
-
 public class Pacman extends Entite {
-    
+
+    private Direction futureDirection;
+    private final Point spawn;
+    private int fantomeMange;
     private int score;
     private int vie;
-    private final Point spawn;
-    private Direction futureDirection;
-    private int fantomeMange;
 
     public Pacman(Jeu _jeu, Point p) {
         super(_jeu, p);
         d = Direction.droite;
+        spawn = p;
         score = 0;
         vie = 2;
-        spawn = p;
         fantomeMange = 0;
     }
-    
+
     public void resetFantomeMange() {
         fantomeMange = 0;
     }
-    
+
     public void respawn() {
         coo = spawn;
         d = Direction.droite;
         futureDirection = null;
-        jeu.deplacerEntite(this, Direction.neutre);
+        jeu.deplacerEntite(this, Direction.neutre); // Pour mise à jour graphique
     }
-    
+
     public void addVie() {
         vie++;
     }
@@ -55,8 +49,8 @@ public class Pacman extends Entite {
     private void augmenterScore(int s) {
         score += s;
     }
-    
-    public void setFutureDirection(Direction d) {
+
+    public void setFutureDirection(Direction d) { // Pour réagir au clavier comme le vrai pacman
         futureDirection = d;
     }
 
@@ -79,12 +73,12 @@ public class Pacman extends Entite {
     public int getVies() {
         return vie;
     }
-    
+
     public void manger(Mangeable objet) {
         augmenterScore(objet.getScore());
         objet.getManger();
     }
-    
+
     public void mangerFantome(Fantome f) {
         int[] scores = {300, 600, 1200};
         augmenterScore(scores[fantomeMange]);
@@ -94,8 +88,10 @@ public class Pacman extends Entite {
 
     @Override
     public void choixDirection() {
-        if (futureDirection == null)
+        if (futureDirection == null) // Si le joueur ne veut pas tourner on ne change rien
             return;
+
+        // Si le joueur peut tourner sans être stoppé par un mur, il peut tourner
         Object cible = (Entite) jeu.regarderDansLaDirection(this, futureDirection);
         if (cible instanceof Mur)
             return;

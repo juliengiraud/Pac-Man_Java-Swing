@@ -282,7 +282,7 @@ public class VueControleurPacMan extends JFrame implements Observer {
         add(menu);
 
     }
-    
+
     private void mise_a_jour_barre_jeu() {
         score.setText("Score : " + jeu.getPacman().getScore());
         niveau.setText("Niveau : " + jeu.getNiveau() + "/3");
@@ -301,7 +301,7 @@ public class VueControleurPacMan extends JFrame implements Observer {
         jeu.start();
 
     }
-    
+
     private void retour_menu() {
         System.out.println("Retourner au menu");
         try {

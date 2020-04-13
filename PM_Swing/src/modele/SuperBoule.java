@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package modele;
 
 import java.awt.Point;
@@ -14,10 +9,10 @@ import java.awt.Point;
 public class SuperBoule extends Boule {
 
     public SuperBoule(Jeu _jeu, Point p) {
-        super(_jeu, p);
+        super(_jeu, p); // Ça serait dommage de ne pas profiter du code de la classe parente :P
         score = 50;
     }
-    
+
     @Override
     public void getManger() {
         super.getManger();
