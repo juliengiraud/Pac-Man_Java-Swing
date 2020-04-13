@@ -34,12 +34,6 @@ import modele.Mur;
 import modele.SuperBoule;
 
 
-/** Cette classe a deux fonctions :
- *  (1) Vue : proposer une représentation graphique de l'application (cases graphiques, etc.)
- *  (2) Controleur : écouter les évènements clavier et déclencher le traitement adapté sur le modèle (flèches direction Pacman, etc.))
- *
- * @author freder
- */
 public class VueControleurPacMan extends JFrame implements Observer {
 
     // En rapport avec la classe Jeu
@@ -197,7 +191,7 @@ public class VueControleurPacMan extends JFrame implements Observer {
 
     private ImageIcon chargerIcone(String urlIcone) {
 
-        BufferedImage image = null;
+        BufferedImage image;
         try {
             image = ImageIO.read(new File(urlIcone));
         } catch (IOException ex) {
@@ -217,7 +211,7 @@ public class VueControleurPacMan extends JFrame implements Observer {
     
     private void creerVueMap() {
         
-        jeu_ = new JPanel();
+        jeu_ = new JPanel(); // Conteneur de la grille du jeu et de la barre d'info
         JPanel grilleJLabels = new JPanel(new GridLayout(size, size));
         grilleJLabels.setPreferredSize(new Dimension(this.getWidth()+1, 19*size));
         grilleJLabels.setBackground(Color.white);
@@ -234,8 +228,9 @@ public class VueControleurPacMan extends JFrame implements Observer {
     
     private void creerVueBarre() {
         
-        JPanel barre = new JPanel(new BorderLayout());
-        barre.setPreferredSize(new Dimension(this.getWidth()-50, 32));
+        JPanel barre = new JPanel(new BorderLayout()); // Barre d'info
+        barre.setPreferredSize(new Dimension(this.getWidth()-50, 32)); // Largeur moins petit espace
+        
         score = new JLabel();
         score.setFont(score.getFont().deriveFont(20.0f));
         niveau = new JLabel();
@@ -243,6 +238,7 @@ public class VueControleurPacMan extends JFrame implements Observer {
         niveau.setHorizontalAlignment(JLabel.CENTER);
         vies = new JLabel();
         vies.setFont(vies.getFont().deriveFont(20.0f));
+        
         barre.add(score, BorderLayout.WEST);
         barre.add(niveau, BorderLayout.CENTER);
         barre.add(vies, BorderLayout.EAST);
@@ -252,44 +248,44 @@ public class VueControleurPacMan extends JFrame implements Observer {
     private void creerMenu() {
         
         // Création des conteneurs
-        JPanel jp_image_menu = new JPanel(); // Image du haut/milieu
-        JPanel jp_lancer_jeu = new JPanel(); // Bouton "Lancer le jeu"
-        JPanel jp_afficher_score = new JPanel(); // Bouton "Afficher les scores"
+        JPanel cimage_menu = new JPanel(); // Image du haut/milieu
+        JPanel clancer_jeu = new JPanel(); // Bouton "Lancer le jeu"
+        JPanel cafficher_score = new JPanel(); // Bouton "Afficher les scores"
         menu = new JPanel(); // Tous les éléments
 
         // Espace du milieu
-        JLabel jl_fond = new JLabel();
-        jl_fond.setIcon(chargerIcone("Images/accueil.png"));
-        jp_image_menu.setPreferredSize(new Dimension(this.getWidth()+1, 300));
-        jp_image_menu.add(jl_fond);
-        jp_image_menu.setBackground(Color.black);
+        JLabel fond = new JLabel();
+        fond.setIcon(chargerIcone("Images/accueil.png"));
+        cimage_menu.setPreferredSize(new Dimension(this.getWidth()+1, 300));
+        cimage_menu.add(fond);
+        cimage_menu.setBackground(Color.black);
 
         // Lancer le jeu
-        JButton jb_lancer_jeu = new JButton("Lancer le jeu");
-        jp_lancer_jeu.setMaximumSize(new Dimension(this.getWidth()+1, 0));
-        jp_lancer_jeu.setPreferredSize(new Dimension(this.getWidth()+1, 42));
-        jp_lancer_jeu.add(jb_lancer_jeu);
-        jp_lancer_jeu.setBackground(Color.black);
-        jb_lancer_jeu.addActionListener((ActionEvent ae) -> {
+        JButton lancer_jeu = new JButton("Lancer le jeu");
+        clancer_jeu.setMaximumSize(new Dimension(this.getWidth()+1, 0));
+        clancer_jeu.setPreferredSize(new Dimension(this.getWidth()+1, 42));
+        clancer_jeu.add(lancer_jeu);
+        clancer_jeu.setBackground(Color.black);
+        lancer_jeu.addActionListener((ActionEvent ae) -> {
             lancer_jeu();
         });
 
         // Afficher les scores
-        JButton jb_afficher_score = new JButton("Afficher les scores");
-        jp_afficher_score.add(jb_afficher_score);
-        jp_afficher_score.setBackground(Color.black);
-        jb_afficher_score.addActionListener((ActionEvent ae) -> {
+        JButton afficher_score = new JButton("Afficher les scores");
+        cafficher_score.add(afficher_score);
+        cafficher_score.setBackground(Color.black);
+        afficher_score.addActionListener((ActionEvent ae) -> {
             afficher_scores();
         });
 
         // Ajout des conteneurs au menu
-        BoxLayout bl_menu = new BoxLayout(menu, BoxLayout.Y_AXIS);
-        menu.setLayout(bl_menu);
+        BoxLayout bmenu = new BoxLayout(menu, BoxLayout.Y_AXIS);
+        menu.setLayout(bmenu);
         menu.setAlignmentX(JComponent.BOTTOM_ALIGNMENT);
         menu.setBackground(Color.black);
-        menu.add(jp_image_menu);
-        menu.add(jp_lancer_jeu);
-        menu.add(jp_afficher_score);
+        menu.add(cimage_menu);
+        menu.add(clancer_jeu);
+        menu.add(cafficher_score);
 
         // Ajout du menu à la vue
         add(menu);
@@ -297,11 +293,11 @@ public class VueControleurPacMan extends JFrame implements Observer {
 
     private void creerTableauDesScores() {
         
-        scoreboard_container = new JPanel();
+        scoreboard_container = new JPanel(); // Conteneur de toute la fenêtre
         scoreboard_container.setLayout(new BoxLayout(scoreboard_container, BoxLayout.Y_AXIS));
         scoreboard_container.setBackground(Color.black);
         
-        scoreboard_ = new JPanel();
+        scoreboard_ = new JPanel(); // Conteneur des lignes de score
         scoreboard_.setBackground(Color.black);
         JLabel label = new JLabel("Niveau    Score");
         label.setFont(score.getFont().deriveFont(15.0f));
@@ -325,7 +321,6 @@ public class VueControleurPacMan extends JFrame implements Observer {
         JLabel space = new JLabel("");
         space.setPreferredSize(new Dimension(this.getWidth(), 80));
         scoreboard_container.add(space);
-
     }
     
     private void retour_menu_depuis_scoreboard() {
@@ -350,10 +345,11 @@ public class VueControleurPacMan extends JFrame implements Observer {
     }
 
     private void mise_a_jour_barre_jeu() {
+        
         score.setText("Score : " + jeu.getPacman().getScore());
         niveau.setText("Niveau : " + jeu.getNiveau() + "/3");
         vies.setText("Vies : " + jeu.getPacman().getVies());
-        
+
         // Sauvegarde des scores de la partie
         scoreboard_tmp[0] = jeu.getNiveau();
         scoreboard_tmp[1] = jeu.getPacman().getScore();
@@ -366,21 +362,27 @@ public class VueControleurPacMan extends JFrame implements Observer {
     
     private void chargerScores() {
         
-        for (int[] scores : scoreboard) {
-            JPanel l = new JPanel();
+        for (int[] scores : scoreboard) { // Pour chaque ligne de score
+            JPanel l = new JPanel(); // Conteneur de la ligne
             l.setBackground(Color.black);
             l.setAlignmentX(JComponent.CENTER_ALIGNMENT);
-            JLabel l1 = new JLabel(scores[0] + "/3       ");
-            JLabel l2 = new JLabel("   " + scores[1]);
-            l1.setPreferredSize(new Dimension(this.getWidth()/2, 15));
-            l2.setPreferredSize(new Dimension(this.getWidth()/2, 15));
-            l1.setFont(score.getFont().deriveFont(15.0f));
+            
+            JLabel l1 = new JLabel(scores[0] + "/3       "); // Partie gauche de la ligne
+            JLabel l2 = new JLabel("   " + scores[1]); // Partie droite de la ligne
+            
+            l1.setPreferredSize(new Dimension(this.getWidth()/2, 15)); // Pour que la largeur tombe bien
+            l2.setPreferredSize(new Dimension(this.getWidth()/2, 15)); // entre la gauche et la droite
+            
+            l1.setFont(score.getFont().deriveFont(15.0f)); // La police était un peu petite
             l2.setFont(score.getFont().deriveFont(15.0f));
-            l1.setHorizontalAlignment(JLabel.RIGHT);
+            
+            l1.setHorizontalAlignment(JLabel.RIGHT); // Pour avoir un effet "centré"
             l2.setHorizontalAlignment(JLabel.LEFT);
-            l1.setForeground(Color.white);
+            
+            l1.setForeground(Color.white); // Pour le "style"
             l2.setForeground(Color.white);
-            l.add(l1);
+            
+            l.add(l1); // Parce que sinon les dernières lignes ne servent à rien :-)
             l.add(l2);
             scoreboard_.add(l);
         }
@@ -427,48 +429,61 @@ public class VueControleurPacMan extends JFrame implements Observer {
 
     private void mettreAJourAffichage() {
 
-        for (int x = 0; x < size; x++) {
+        for (int x = 0; x < size; x++) { // Pour chaque case de la grille des entités...
             for (int y = 0; y < size; y++) {
-                if (!startgood || lastGrille[x][y] != jeu.getGrille()[x][y] || jeu.getGrille()[x][y] instanceof Fantome) {
-                    //System.out.println("Changement en " + x + ", " + y);
+                if (
+                    !startgood // Pour détecter le premier passage dans cette boucle
+                    || lastGrille[x][y] != jeu.getGrille()[x][y] // Pour ne gérer que les changements
+                    || jeu.getGrille()[x][y] instanceof Fantome // Sauf pour les fantômes qui changent quand même
+                ) {
+                    // Pour chaque entité de met à jour son icone
                     if (jeu.getGrille()[x][y] instanceof Bonus) {
+                        // L'icone du bonus change selon le niveau
                         tabJLabel[x][y].setIcon(icoBonus[jeu.getNiveau()-1]);
                     }
                     else if (jeu.getGrille()[x][y] instanceof Pacman) {
                         tabJLabel[x][y].setIcon(
+                            // L'icone du pacman dépend de sa direction
                             icoPacMan[ ((Pacman) jeu.getGrille()[x][y]).getState() ]
                         );
                     }
                     else if (jeu.getGrille()[x][y] instanceof Fantome) {
                         tabJLabel[x][y].setIcon(
+                            // L'icone du fantôme dépend de pleins de choses
                             icoFantome[ ((Fantome) jeu.getGrille()[x][y]).getState() ]
                         );
                     }
                     else if (jeu.getGrille()[x][y] instanceof Mur) {
                         tabJLabel[x][y].setIcon(
+                            // L'icone du mur dépend de son type
                             icoMur[ ((Mur) jeu.getGrille()[x][y]).getTypeMur() ]
                         );
                     }
                     else if (jeu.getGrille()[x][y] instanceof SuperBoule) {
+                        // Là ça dépend de rien, enfin !
+                        // Il faut cependant placer cette ligne avant "Boule"
                         tabJLabel[x][y].setIcon(icoFood[1]);
                     }
-                    else if (jeu.getGrille()[x][y] instanceof Boule) {
-                        tabJLabel[x][y].setIcon(icoFood[0]);
+                    else if (jeu.getGrille()[x][y] instanceof Boule) { // Car cette condition fonctionne
+                        tabJLabel[x][y].setIcon(icoFood[0]);           // aussi pour SuperBoule
                     }
                     else {
-                        tabJLabel[x][y].setIcon(icoCouloir);
+                        tabJLabel[x][y].setIcon(icoCouloir); // Le seul qui reste
                     }
                 }
-                lastGrille[x][y] = jeu.getGrille()[x][y];
+                lastGrille[x][y] = jeu.getGrille()[x][y]; // Pour mettre à jour la sauvegarde qu'on
+                                                          // utilise pour détecter les changements
             }
         }
-        startgood = true;
-        //System.out.println("\n");
+        startgood = true; // Pour indiquer qu'on a passé la première exécution
         mise_a_jour_barre_jeu();
     }
 
     @Override
     public void update(Observable o, Object arg) {
+        
+        // Si on ne joue pas, on est dans le menu ou le scoreboard
+        // Mais le scoreboard n'est pas géré là...
         if (jeu.getPartieOn())
             mettreAJourAffichage();
         else
