@@ -13,7 +13,7 @@ import java.awt.Point;
  */
 public class Bonus extends Entite implements Mangeable {
     
-    public static final int LIMITE = 10;
+    public static final int LIMITE = 20;
     private int temps;
     private final int score;
     private boolean visible;

@@ -15,10 +15,12 @@ import java.util.Random;
  */
 public class Fantome extends Entite {
 
+    public static final int LIMITE = 50;
     private final Random r = new Random();
     //private Level level;
     private boolean vulnerable;
     private boolean mort;
+    private int temps_vulnerable;
     private final Color couleur;
     private final Point spawn;
 
@@ -27,6 +29,7 @@ public class Fantome extends Entite {
         d = Direction.droite;
         couleur = c;
         vulnerable = false;
+        mort = false;
         spawn = p;
     }
     
@@ -34,16 +37,11 @@ public class Fantome extends Entite {
         return vulnerable;
     }
     
-    /*public void respawn() {
-        System.out.println("On passe de " + coo + " à " + spawn);
-        jeu.getGrille()[coo.x][coo.y] = null;
+    public void getManger() {
+        mort = true;
         coo = spawn;
         d = Direction.neutre;
         jeu.deplacerEntite(this, Direction.neutre);
-    }*/
-    
-    public void tuPeuxDevenirVulnerable() {
-        vulnerable = true;
     }
     
     public int getState() {
@@ -94,6 +92,11 @@ public class Fantome extends Entite {
     @Override
     public void choixDirection() {
         
+        if (mort) {
+            d = Direction.neutre;
+            return;
+        }
+        
         switch (r.nextInt(2)) {
             case 0:
                 d = Direction.gauche;
@@ -102,5 +105,31 @@ public class Fantome extends Entite {
                 d = Direction.haut;
                 break;
         }
+    }
+    
+    public boolean isMort() {
+        return mort;
+    }
+    
+    public void setVulnerable() {
+        vulnerable = true;
+        temps_vulnerable = LIMITE;
+    }
+    
+    private void gestionVulnerable() {
+        if (temps_vulnerable > 0)
+            temps_vulnerable--;
+        if (temps_vulnerable == 0) {
+            mort = false;
+            vulnerable = false;
+        }
+    }
+
+    @Override
+    public void run() {
+        if (vulnerable)
+            gestionVulnerable();
+        choixDirection();
+        avancerDirectionChoisie();
     }
 }

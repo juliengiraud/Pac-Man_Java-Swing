@@ -17,5 +17,11 @@ public class SuperBoule extends Boule {
         super(_jeu, p);
         score = 50;
     }
+    
+    @Override
+    public void getManger() {
+        super.getManger();
+        jeu.pacmanMangeSuperboule();
+    }
 
 }

@@ -65,7 +65,7 @@ public class Jeu extends Observable implements Runnable {
             entites.add(pm);
         }
         
-        fantomes[0] = new Fantome(this, new Point(12, 12), Color.PINK);
+        /*fantomes[0] = new Fantome(this, new Point(12, 12), Color.PINK);
         grilleEntites[12][12] = fantomes[0];
         entites.add(fantomes[0]);
         
@@ -75,7 +75,7 @@ public class Jeu extends Observable implements Runnable {
         
         fantomes[2] = new Fantome(this, new Point(10, 12), Color.BLUE);
         grilleEntites[10][12] = fantomes[2];
-        entites.add(fantomes[2]);
+        entites.add(fantomes[2]);*/
         
         bonus = new Bonus(this, new Point(5, 5), niveau);
         grilleEntites[5][5] = bonus;
@@ -89,12 +89,16 @@ public class Jeu extends Observable implements Runnable {
     
     private void initialisationBoules() {
         
+        boolean DEBUG = true;
+        
         ArrayList<Point> interdits = new ArrayList<>();
 
         ajouterSuperBoule(3, 6);
-        ajouterSuperBoule(3, 21);
-        ajouterSuperBoule(20, 4);
-        ajouterSuperBoule(21, 21);
+        if (!DEBUG) {
+            ajouterSuperBoule(3, 21);
+            ajouterSuperBoule(20, 4);
+            ajouterSuperBoule(21, 21);
+        }
         
         interdits.add(new Point(3, 6));
         interdits.add(new Point(3, 21));
@@ -111,9 +115,8 @@ public class Jeu extends Observable implements Runnable {
 
         interdits.add(bonus.coo);
 
-        for (int x = 1; x <= 23; x++)
-            for (int y = 1; y <= 23; y++)
-            //for (int y = 1; y <= 1; y++)
+        for (int x = 1; x <= (DEBUG ? 5 : 23); x++)
+            for (int y = 1; y <= (DEBUG ? 1 : 23); y++)
                 if (!interdits.contains(new Point(x, y)) && !(grilleEntites[x][y] instanceof Mur))
                     ajouterBoule(x, y);
     }
@@ -408,6 +411,13 @@ public class Jeu extends Observable implements Runnable {
     }
 
     public boolean deplacerEntite(Entite e, Direction d) {
+        
+        ArrayList<Point> interdits = new ArrayList<>();
+
+        // Les coo du spawn des fantomes
+        interdits.add(new Point(10, 11));
+        interdits.add(new Point(11, 11));
+        interdits.add(new Point(12, 11));
 
         Point pCourant = e.coo;
         Point pCible = calculerPointCible(pCourant, d);
@@ -415,6 +425,9 @@ public class Jeu extends Observable implements Runnable {
         if (!contenuDansGrille(pCible)) {
             return false;
         }
+        
+        if (e == pm && interdits.contains(pCible))
+            return false;
 
         if (objetALaPosition(pCible) == null) { // Si la case est vide on a rien à faire
             deplacerEntite(pCourant, pCible, e);
@@ -458,6 +471,8 @@ public class Jeu extends Observable implements Runnable {
             if (dest == pm) {
                 return gestionCollisionPacmanFantome((Fantome) src);
             }
+            if (dest instanceof Fantome)
+                return null;
             return src;
         }
 
@@ -471,7 +486,19 @@ public class Jeu extends Observable implements Runnable {
             return dest;
         }
         
-        return pm; // Pas encore géré
+        if (!dest.isMort()) {
+            for (Entite e : entites)
+                if (e instanceof Boule && e.coo == dest.coo)
+                    pm.manger((Mangeable) e);
+            pm.mangerFantome(dest);
+        }
+        return pm;
+    }
+    
+    protected void pacmanMangeSuperboule() {
+        for (Fantome f : fantomes)
+            f.setVulnerable();
+        pm.resetFantomeMange();
     }
 
     private Point calculerPointCible(Point pCourant, Direction d) {
@@ -557,6 +584,10 @@ public class Jeu extends Observable implements Runnable {
     }
     
     private void nextLevel() {
+        if (niveau == 3) {
+            stop();
+            return;
+        }
         niveau++;
         pm.addVie();
         setStarting();
@@ -571,12 +602,7 @@ public class Jeu extends Observable implements Runnable {
     }
     
     private void reinitialisationDesEntites() {
-        
-        if (niveau > 3) {
-            stop();
-            return;
-        }
-        
+
         for (int i = 0; i < entites.size(); i++) {
             Entite e = entites.get(i);
             if (e instanceof Fantome)
@@ -617,7 +643,7 @@ public class Jeu extends Observable implements Runnable {
                 setChanged();
                 notifyObservers();
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(2000);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(Pacman.class.getName()).log(Level.SEVERE, null, ex);
                 }

@@ -329,7 +329,7 @@ public class VueControleurPacMan extends JFrame implements Observer {
 
         for (int x = 0; x < size; x++) {
             for (int y = 0; y < size; y++) {
-                if (!startgood || lastGrille[x][y] != jeu.getGrille()[x][y]) {
+                if (!startgood || lastGrille[x][y] != jeu.getGrille()[x][y] || jeu.getGrille()[x][y] instanceof Fantome) {
                     //System.out.println("Changement en " + x + ", " + y);
                     if (jeu.getGrille()[x][y] instanceof Bonus) {
                         tabJLabel[x][y].setIcon(icoBonus[jeu.getNiveau()-1]);
@@ -340,7 +340,6 @@ public class VueControleurPacMan extends JFrame implements Observer {
                         );
                     }
                     else if (jeu.getGrille()[x][y] instanceof Fantome) {
-                        //tabJLabel[x][y].setIcon(icoFantome[0]);
                         tabJLabel[x][y].setIcon(
                             icoFantome[ ((Fantome) jeu.getGrille()[x][y]).getState() ]
                         );

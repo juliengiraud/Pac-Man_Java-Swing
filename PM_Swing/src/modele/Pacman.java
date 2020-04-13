@@ -11,18 +11,22 @@ import java.awt.Point;
 public class Pacman extends Entite {
     
     private int score;
-    private boolean big;
     private int vie;
     private final Point spawn;
     private Direction futureDirection;
+    private int fantomeMange;
 
     public Pacman(Jeu _jeu, Point p) {
         super(_jeu, p);
         d = Direction.droite;
         score = 0;
-        big = false;
         vie = 2;
         spawn = p;
+        fantomeMange = 0;
+    }
+    
+    public void resetFantomeMange() {
+        fantomeMange = 0;
     }
     
     public void respawn() {
@@ -30,10 +34,6 @@ public class Pacman extends Entite {
         d = Direction.droite;
         futureDirection = null;
         jeu.deplacerEntite(this, Direction.neutre);
-    }
-    
-    public void setBig() {
-        big = true;
     }
     
     public void addVie() {
@@ -61,26 +61,14 @@ public class Pacman extends Entite {
     }
 
     public int getState() {
-        if (!big) {
-            if (d == Direction.haut)
-                return 0;
-            if (d == Direction.bas)
-                return 1;
-            if (d == Direction.gauche)
-                return 2;
-            if (d == Direction.droite)
-                return 3;
-        }
-        else {
-            if (d == Direction.haut)
-                return 4;
-            if (d == Direction.bas)
-                return 5;
-            if (d == Direction.gauche)
-                return 6;
-            if (d == Direction.droite)
-                return 7;
-        }
+        if (d == Direction.haut)
+            return 0;
+        if (d == Direction.bas)
+            return 1;
+        if (d == Direction.gauche)
+            return 2;
+        if (d == Direction.droite)
+            return 3;
         return 3; // Direction par défaut
     }
 
@@ -95,6 +83,13 @@ public class Pacman extends Entite {
     public void manger(Mangeable objet) {
         augmenterScore(objet.getScore());
         objet.getManger();
+    }
+    
+    public void mangerFantome(Fantome f) {
+        int[] scores = {300, 600, 1200};
+        augmenterScore(scores[fantomeMange]);
+        fantomeMange++;
+        f.getManger();
     }
 
     @Override
