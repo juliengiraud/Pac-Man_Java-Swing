@@ -41,6 +41,7 @@ public class Fantome extends Entite {
         coo = spawn;
         d = Direction.neutre;
         jeu.deplacerEntite(this, Direction.neutre); // Pour MAJ visuelle
+        System.out.println("PACMAN mange un fantôme");
     }
 
     /**

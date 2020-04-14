@@ -9,7 +9,7 @@ import java.awt.Point;
 public class Boule extends Entite implements Mangeable {
 
     protected int score;
-    private boolean mange = false;
+    protected boolean mange = false;
 
     public Boule(Jeu _jeu, Point p) {
         super(_jeu, p);
@@ -27,6 +27,7 @@ public class Boule extends Entite implements Mangeable {
     @Override
     public void getManger() {
         mange = true;
+        System.out.println("PACMAN mange une boule");
     }
 
     public boolean isManger() {

@@ -39,6 +39,7 @@ public class Pacman extends Entite {
             vie--;
             jeu.setStarting();
             respawn();
+            System.out.println("PACMAN a été tué par un fantôme");
         }
         else {
             System.out.println("fin de la partie");
