@@ -16,6 +16,14 @@ import java.util.Observer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -65,6 +73,39 @@ public class VueControleurPacMan extends JFrame implements Observer {
 
     // En rapport avec le menu
     JPanel menu;
+     
+    //Pour le Son  
+    private AudioInputStream pacmanBoule;
+    private Clip clipPacmanBoule;
+    private FloatControl controlPacmanBoule;
+    
+    private AudioInputStream intro;
+    private Clip clipIntro;
+    private FloatControl controlIntro;
+    
+    private AudioInputStream superBoule;
+    private Clip clipSuperBoule;
+    private FloatControl controlSuperBoule;
+    
+    private AudioInputStream bonus;
+    private Clip clipBonus;
+    private FloatControl controlBonus;
+    
+    private AudioInputStream pacmanFantome;
+    private Clip clipPacmanFantome;
+    private FloatControl controlPacmanFantome;
+    
+    private AudioInputStream fantomePacman;
+    private Clip clipFantomePacman;
+    private FloatControl controlFantomePacman;
+    
+    private AudioInputStream fin;
+    private Clip clipFin;
+    private FloatControl controlFin;
+    
+    private AudioInputStream sirene;
+    private Clip clipSirene;
+    private FloatControl controlSirene;
 
     public VueControleurPacMan() {
 
@@ -77,12 +118,13 @@ public class VueControleurPacMan extends JFrame implements Observer {
         scoreboard_tmp = new int[2];
         
         icoPacMan = new ImageIcon[8];
-        icoFantome = new ImageIcon[14];
+        icoFantome = new ImageIcon[15];
         icoMur = new ImageIcon[19];
         icoFood = new ImageIcon[2];
         icoBonus = new ImageIcon[3];
 
         chargerLesIcones();
+        initialisationSon();
         placerLesComposantsGraphiques();
         ajouterEcouteurClavier();
 
@@ -182,6 +224,7 @@ public class VueControleurPacMan extends JFrame implements Observer {
         icoFantome[11] = chargerIcone("Images/FonPinkUp.png");
         icoFantome[12] = chargerIcone("Images/End.png");
         icoFantome[13] = chargerIcone("Images/eaten.png");
+        icoFantome[14] = chargerIcone("Images/corona.png");
         
         // Food
         icoFood[0] = chargerIcone("Images/food.png");
@@ -427,7 +470,115 @@ public class VueControleurPacMan extends JFrame implements Observer {
         add(scoreboard_container);
         scoreboard_container.setVisible(true);
     }
+    
+    private void initialisationSon(){
+        try{
+            
+            intro = AudioSystem.getAudioInputStream(new File("./Images/intro.wav"));
+            AudioFormat formatIntro = intro.getFormat();
+            DataLine.Info infoIntro = new DataLine.Info(Clip.class, formatIntro);
+            clipIntro = (Clip) AudioSystem.getLine(infoIntro);
+            clipIntro.open(intro);
+            
+            
+            pacmanBoule = AudioSystem.getAudioInputStream(new File("./Images/son.wav"));
+            AudioFormat formatPacmanBoule = pacmanBoule.getFormat();
+            DataLine.Info infoPacmanBoule = new DataLine.Info(Clip.class, formatPacmanBoule);
+            clipPacmanBoule = (Clip) AudioSystem.getLine(infoPacmanBoule);
+            clipPacmanBoule.open(pacmanBoule);
+            
+            
+            superBoule = AudioSystem.getAudioInputStream(new File("./Images/insert_coin.wav"));
+            AudioFormat formatSuperBoule = superBoule.getFormat();
+            DataLine.Info infoSuperBoule = new DataLine.Info(Clip.class, formatSuperBoule);
+            clipSuperBoule = (Clip) AudioSystem.getLine(infoSuperBoule);
+            clipSuperBoule.open(superBoule);
+    
+            
+            bonus = AudioSystem.getAudioInputStream(new File("./Images/fruit.wav"));
+            AudioFormat formatBonus = bonus.getFormat();
+            DataLine.Info infoBonus = new DataLine.Info(Clip.class, formatBonus);
+            clipBonus = (Clip) AudioSystem.getLine(infoBonus);
+            clipBonus.open(bonus);
+   
+    
+            pacmanFantome = AudioSystem.getAudioInputStream(new File("./Images/ghost_eat_1.wav"));
+            AudioFormat formatPacmanFantome = pacmanFantome.getFormat();
+            DataLine.Info infoPacmanFantome = new DataLine.Info(Clip.class, formatPacmanFantome);
+            clipPacmanFantome = (Clip) AudioSystem.getLine(infoPacmanFantome);
+            clipPacmanFantome.open(pacmanFantome);
+    
+    
+            fantomePacman = AudioSystem.getAudioInputStream(new File("./Images/death_1.wav"));
+            AudioFormat formatFantomePacman = fantomePacman.getFormat();
+            DataLine.Info infoFantomePacman = new DataLine.Info(Clip.class, formatFantomePacman);
+            clipFantomePacman = (Clip) AudioSystem.getLine(infoFantomePacman);
+            clipFantomePacman.open(fantomePacman);
+    
+            fin = AudioSystem.getAudioInputStream(new File("./Images/corona.wav"));
+            AudioFormat formatFin = fin.getFormat();
+            DataLine.Info infoFin = new DataLine.Info(Clip.class, formatFin);
+            clipFin = (Clip) AudioSystem.getLine(infoFin);
+            clipFin.open(fin);
+    
+    
+            sirene = AudioSystem.getAudioInputStream(new File("./Images/siren_fast.wav"));
+            AudioFormat formatSirene = sirene.getFormat();
+            DataLine.Info infoSirene = new DataLine.Info(Clip.class, formatSirene);
+            clipSirene = (Clip) AudioSystem.getLine(infoSirene);
+            clipSirene.open(sirene);
 
+
+        }catch(IOException | LineUnavailableException | UnsupportedAudioFileException ex){
+            ex.printStackTrace();
+        }
+        
+    }
+    
+    private void son(Clip clipMusic){
+        
+        clipMusic.setFramePosition(1);
+        clipMusic.start();
+        
+    }
+    
+    //0 intro 1 pacman mange boule  2superBoule 3 bonus 4 pacman mange un fantome 5 pacman manger par un fantome 6 fin de la partie 7 sirene peut manger fantome
+    
+    private void mettre_a_jour_son(){
+       
+       for(int i =0; i< jeu.getSon().size(); i++)
+       {
+           switch(jeu.getSon().elementAt(i)){
+               case 0:
+                  son(clipIntro);
+                  break;
+               case 1:
+                  son(clipPacmanBoule);
+                  break;
+               case 2:
+                  son(clipSuperBoule);
+                  break;
+               case 3:
+                  son(clipBonus);
+                  break;
+               case 4:
+                  son(clipPacmanFantome);
+                  break;
+               case 5:
+                  son(clipFantomePacman);
+                  break;
+               case 6:
+                  son(clipFin);
+                  break;
+               case 7:
+                  son(clipSirene);
+                  break;
+               
+           }
+       }
+       jeu.getSon().clear();
+    }
+    
     private void mettreAJourAffichage() {
 
         for (int x = 0; x < size; x++) { // Pour chaque case de la grille des entités...
@@ -478,6 +629,7 @@ public class VueControleurPacMan extends JFrame implements Observer {
         }
         startgood = true; // Pour indiquer qu'on a passé la première exécution
         mise_a_jour_barre_jeu();
+        mettre_a_jour_son();
     }
 
     @Override

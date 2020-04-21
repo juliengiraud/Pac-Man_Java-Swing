@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Observable;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,6 +16,8 @@ public class Jeu extends Observable implements Runnable {
     private Bonus bonus;
     private final Fantome[] fantomes;
     private int niveau;
+    private Vector<Integer> son = new Vector<>();
+    //1 pour intro et 2 pour boule
 
     private int partie_on;
     private boolean starting;
@@ -23,17 +26,22 @@ public class Jeu extends Observable implements Runnable {
     private final ArrayList<Entite> entites;
 
     public Jeu() {
-        fantomes = new Fantome[3];
+        fantomes = new Fantome[4];
         grilleEntites = new Entite[SIZE][SIZE];
         entites = new ArrayList<>();
         niveau = 1;
         starting = true;
+        son.addElement(0);
 
         initialisationDesEntites();
     }
 
     public int getNiveau() {
         return niveau;
+    }
+    
+    public Vector<Integer> getSon(){
+        return son;
     }
 
     public Entite[][] getGrille() {
@@ -630,17 +638,21 @@ public class Jeu extends Observable implements Runnable {
                 entites.remove(fantomes[0]);
                 entites.remove(fantomes[1]);
                 entites.remove(fantomes[2]);
+                entites.remove(fantomes[3]);
 
                 // Rajout des entités
                 fantomes[0] = new Fantome(this, new Point(12, 12), Color.PINK);
                 fantomes[1] = new Fantome(this, new Point(11, 12), Color.RED);
                 fantomes[2] = new Fantome(this, new Point(10, 12), Color.BLUE);
+                fantomes[3] = new Fantome(this, new Point(11, 11), Color.GREEN );
                 grilleEntites[12][12] = fantomes[0];
                 grilleEntites[11][12] = fantomes[1];
                 grilleEntites[10][12] = fantomes[2];
+                grilleEntites[11][11] = fantomes[3];
                 entites.add(fantomes[0]);
                 entites.add(fantomes[1]);
                 entites.add(fantomes[2]);
+                entites.add(fantomes[3]);
 
                 // Coucou à la vue pour mettre à jour l'affichage avant de marquer la pause
                 setChanged();

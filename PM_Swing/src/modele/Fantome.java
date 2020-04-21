@@ -3,6 +3,7 @@ package modele;
 import java.awt.Color;
 import java.awt.Point;
 import java.util.Random;
+import java.util.Vector;
 
 /**
  *
@@ -12,9 +13,11 @@ public class Fantome extends Entite {
 
     private static final int LIMITE = 50; // Nombre de tour avant de redevenir invulnérable
 
+    private Vector<Point> pointTraverse = new Vector<>();
     private final Random r = new Random(); // Pour déplacement aléatoire
     private final Color couleur;
     private final Point spawn; // Point d'apparition
+    private Vector<Point> mur = new Vector<>();; // contient les coordoneés des murs
 
     private boolean vulnerable; // Ne peut pas tuer pacman
     private boolean mort; // Ne peut pas être mangé par pacman
@@ -27,6 +30,14 @@ public class Fantome extends Entite {
         couleur = c;
         vulnerable = false;
         mort = false;
+	
+        for(int i=0;i<jeu.SIZE; i++){
+            for(int j=0;j<jeu.SIZE; j++)
+            {
+                if(jeu.getGrille()[i][j] instanceof Mur)
+                    mur.add(new Point(i,j));
+            }
+        }
     }
 
     public boolean isVulnerable() {
@@ -41,7 +52,7 @@ public class Fantome extends Entite {
         coo = spawn;
         d = Direction.neutre;
         jeu.deplacerEntite(this, Direction.neutre); // Pour MAJ visuelle
-        System.out.println("PACMAN mange un fantôme");
+        jeu.getSon().addElement(4);
     }
 
     /**
@@ -81,6 +92,9 @@ public class Fantome extends Entite {
                 if (d == Direction.haut)
                     return 11;
                 return 10;
+            }
+            if(couleur == Color.GREEN){ //corona
+                return 14;   
             }
         }
         else {
