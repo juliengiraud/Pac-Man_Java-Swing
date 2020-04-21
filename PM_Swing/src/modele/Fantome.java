@@ -259,6 +259,7 @@ public class Fantome extends Entite {
         if (temps_vulnerable == 0) {
             mort = false;
             vulnerable = false;
+            d = Direction.haut;
         }
     }
 
