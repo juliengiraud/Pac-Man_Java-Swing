@@ -17,7 +17,6 @@ public class Jeu extends Observable implements Runnable {
     private final Fantome[] fantomes;
     private int niveau;
     private Vector<Integer> son = new Vector<>();
-    //1 pour intro et 2 pour boule
 
     private int partie_on;
     private boolean starting;
@@ -586,6 +585,7 @@ public class Jeu extends Observable implements Runnable {
     private void nextLevel() {
 
         if (niveau == 3) { // Si le jeu est fini on sort
+            son.addElement(6);
             stop();
             return;
         }
@@ -621,6 +621,36 @@ public class Jeu extends Observable implements Runnable {
 
         initialisationDesEntites();
     }
+    
+    private void respawn_fantomes() {
+        // Nettoyage des entités
+        if (fantomes[0] != null)
+            grilleEntites[fantomes[0].coo.x][fantomes[0].coo.y] = null;
+        if (fantomes[1] != null)
+            grilleEntites[fantomes[1].coo.x][fantomes[1].coo.y] = null;
+        if (fantomes[2] != null)
+            grilleEntites[fantomes[2].coo.x][fantomes[2].coo.y] = null;
+        if (fantomes[3] != null)
+            grilleEntites[fantomes[3].coo.x][fantomes[3].coo.y] = null;
+        entites.remove(fantomes[0]);
+        entites.remove(fantomes[1]);
+        entites.remove(fantomes[2]);
+        entites.remove(fantomes[3]);
+
+        // Rajout des entités
+        fantomes[0] = new Fantome(this, new Point(12, 12), Color.PINK);
+        fantomes[1] = new Fantome(this, new Point(11, 12), Color.RED);
+        fantomes[2] = new Fantome(this, new Point(10, 12), Color.BLUE);
+        fantomes[3] = new Fantome(this, new Point(11, 11), Color.GREEN );
+        grilleEntites[12][12] = fantomes[0];
+        grilleEntites[11][12] = fantomes[1];
+        grilleEntites[10][12] = fantomes[2];
+        grilleEntites[11][11] = fantomes[3];
+        entites.add(fantomes[0]);
+        entites.add(fantomes[1]);
+        entites.add(fantomes[2]);
+        entites.add(fantomes[3]);
+    }
 
     @Override
     public void run() {
@@ -630,44 +660,13 @@ public class Jeu extends Observable implements Runnable {
             // Marque une petite pause avant le début du jeu et après chaque respawn
             if (starting) {
 
-                // Nettoyage des entités
-                /*for (int x = 0; x < 23; x++)
-                    for (int y = 0; y < 23; y++)
-                        if (grilleEntites[x][y] instanceof Fantome)
-                            grilleEntites[x][y] = null;*/
-                if (fantomes[0] != null)
-                    grilleEntites[fantomes[0].coo.x][fantomes[0].coo.y] = null;
-                if (fantomes[1] != null)
-                    grilleEntites[fantomes[1].coo.x][fantomes[1].coo.y] = null;
-                if (fantomes[2] != null)
-                    grilleEntites[fantomes[2].coo.x][fantomes[2].coo.y] = null;
-                if (fantomes[3] != null)
-                    grilleEntites[fantomes[3].coo.x][fantomes[3].coo.y] = null;
-                
-                entites.remove(fantomes[0]);
-                entites.remove(fantomes[1]);
-                entites.remove(fantomes[2]);
-                entites.remove(fantomes[3]);
-
-                // Rajout des entités
-                fantomes[0] = new Fantome(this, new Point(12, 12), Color.PINK);
-                fantomes[1] = new Fantome(this, new Point(11, 12), Color.RED);
-                fantomes[2] = new Fantome(this, new Point(10, 12), Color.BLUE);
-                fantomes[3] = new Fantome(this, new Point(11, 11), Color.GREEN );
-                grilleEntites[12][12] = fantomes[0];
-                grilleEntites[11][12] = fantomes[1];
-                grilleEntites[10][12] = fantomes[2];
-                grilleEntites[11][11] = fantomes[3];
-                entites.add(fantomes[0]);
-                entites.add(fantomes[1]);
-                entites.add(fantomes[2]);
-                entites.add(fantomes[3]);
+                respawn_fantomes();
 
                 // Coucou à la vue pour mettre à jour l'affichage avant de marquer la pause
                 setChanged();
                 notifyObservers();
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(4000);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(Pacman.class.getName()).log(Level.SEVERE, null, ex);
                 }

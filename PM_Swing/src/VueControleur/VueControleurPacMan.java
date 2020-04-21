@@ -102,10 +102,6 @@ public class VueControleurPacMan extends JFrame implements Observer {
     private AudioInputStream fin;
     private Clip clipFin;
     private FloatControl controlFin;
-    
-    private AudioInputStream sirene;
-    private Clip clipSirene;
-    private FloatControl controlSirene;
 
     public VueControleurPacMan() {
 
@@ -471,8 +467,8 @@ public class VueControleurPacMan extends JFrame implements Observer {
         scoreboard_container.setVisible(true);
     }
     
-    private void initialisationSon(){
-        try{
+    private void initialisationSon() {
+        try {
             
             intro = AudioSystem.getAudioInputStream(new File("./Images/intro.wav"));
             AudioFormat formatIntro = intro.getFormat();
@@ -481,14 +477,14 @@ public class VueControleurPacMan extends JFrame implements Observer {
             clipIntro.open(intro);
             
             
-            pacmanBoule = AudioSystem.getAudioInputStream(new File("./Images/son.wav"));
+            pacmanBoule = AudioSystem.getAudioInputStream(new File("./Images/insert_coin.wav"));
             AudioFormat formatPacmanBoule = pacmanBoule.getFormat();
             DataLine.Info infoPacmanBoule = new DataLine.Info(Clip.class, formatPacmanBoule);
             clipPacmanBoule = (Clip) AudioSystem.getLine(infoPacmanBoule);
             clipPacmanBoule.open(pacmanBoule);
             
             
-            superBoule = AudioSystem.getAudioInputStream(new File("./Images/insert_coin.wav"));
+            superBoule = AudioSystem.getAudioInputStream(new File("./Images/son.wav"));
             AudioFormat formatSuperBoule = superBoule.getFormat();
             DataLine.Info infoSuperBoule = new DataLine.Info(Clip.class, formatSuperBoule);
             clipSuperBoule = (Clip) AudioSystem.getLine(infoSuperBoule);
@@ -520,35 +516,35 @@ public class VueControleurPacMan extends JFrame implements Observer {
             DataLine.Info infoFin = new DataLine.Info(Clip.class, formatFin);
             clipFin = (Clip) AudioSystem.getLine(infoFin);
             clipFin.open(fin);
-    
-    
-            sirene = AudioSystem.getAudioInputStream(new File("./Images/siren_fast.wav"));
-            AudioFormat formatSirene = sirene.getFormat();
-            DataLine.Info infoSirene = new DataLine.Info(Clip.class, formatSirene);
-            clipSirene = (Clip) AudioSystem.getLine(infoSirene);
-            clipSirene.open(sirene);
 
 
-        }catch(IOException | LineUnavailableException | UnsupportedAudioFileException ex){
+        } catch(IOException | LineUnavailableException | UnsupportedAudioFileException ex) {
             ex.printStackTrace();
         }
         
     }
     
-    private void son(Clip clipMusic){
-        
-        clipMusic.setFramePosition(1);
+    private void son(Clip clipMusic) {
+        clipMusic.loop(0);
+        clipMusic.setMicrosecondPosition(0L);
         clipMusic.start();
         
     }
     
-    //0 intro 1 pacman mange boule  2superBoule 3 bonus 4 pacman mange un fantome 5 pacman manger par un fantome 6 fin de la partie 7 sirene peut manger fantome
-    
+    /**
+     * 
+     * 0 intro
+     * 1 pacman mange une boule
+     * 2 pacman mange un bonus
+     * 3 pacman mange une superBoule
+     * 4 pacman mange un fantôme
+     * 5 pacman se fait manger par un fantôme
+     * 6 fin de la partie
+     */
     private void mettre_a_jour_son(){
        
-       for(int i =0; i< jeu.getSon().size(); i++)
-       {
-           switch(jeu.getSon().elementAt(i)){
+       for (int i : jeu.getSon()) {
+            switch(i){
                case 0:
                   son(clipIntro);
                   break;
@@ -556,10 +552,10 @@ public class VueControleurPacMan extends JFrame implements Observer {
                   son(clipPacmanBoule);
                   break;
                case 2:
-                  son(clipSuperBoule);
+                  son(clipBonus);
                   break;
                case 3:
-                  son(clipBonus);
+                  son(clipSuperBoule);
                   break;
                case 4:
                   son(clipPacmanFantome);
@@ -569,9 +565,6 @@ public class VueControleurPacMan extends JFrame implements Observer {
                   break;
                case 6:
                   son(clipFin);
-                  break;
-               case 7:
-                  son(clipSirene);
                   break;
                
            }

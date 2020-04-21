@@ -47,7 +47,7 @@ public class Bonus extends Entite implements Mangeable {
     @Override
     public void getManger() {
         reinitialiser();
-        System.out.println("PACMAN mange le bonus");
+        jeu.getSon().addElement(2);
     }
 
     @Override

@@ -39,12 +39,11 @@ public class Pacman extends Entite {
             vie--;
             jeu.setStarting();
             respawn();
-            System.out.println("PACMAN a été tué par un fantôme");
         }
         else {
-            System.out.println("fin de la partie");
             jeu.stop();
         }
+        jeu.getSon().addElement(5);
     }
 
     private void augmenterScore(int s) {
@@ -85,6 +84,7 @@ public class Pacman extends Entite {
         augmenterScore(scores[fantomeMange]);
         fantomeMange++;
         f.getManger();
+        jeu.getSon().addElement(4);
     }
 
     @Override
