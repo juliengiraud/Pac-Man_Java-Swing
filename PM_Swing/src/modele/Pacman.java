@@ -43,7 +43,7 @@ public class Pacman extends Entite {
         else {
             jeu.stop();
         }
-        jeu.getSon().addElement(5);
+        jeu.getSon().add(5);
     }
 
     private void augmenterScore(int s) {
@@ -84,7 +84,7 @@ public class Pacman extends Entite {
         augmenterScore(scores[fantomeMange]);
         fantomeMange++;
         f.getManger();
-        jeu.getSon().addElement(4);
+        jeu.getSon().add(4);
     }
 
     @Override

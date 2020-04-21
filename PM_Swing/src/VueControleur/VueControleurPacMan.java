@@ -41,8 +41,10 @@ import modele.Pacman;
 import modele.Mur;
 import modele.SuperBoule;
 
-
+@SuppressWarnings("serial")
 public class VueControleurPacMan extends JFrame implements Observer {
+    
+    private final boolean debug;
 
     // En rapport avec la classe Jeu
     private Jeu jeu;
@@ -103,7 +105,9 @@ public class VueControleurPacMan extends JFrame implements Observer {
     private Clip clipFin;
     private FloatControl controlFin;
 
-    public VueControleurPacMan() {
+    public VueControleurPacMan(boolean d) {
+        
+        debug = d;
 
         size = Jeu.SIZE;
         startgood = false; // Indique si la partie est lancée
@@ -161,7 +165,7 @@ public class VueControleurPacMan extends JFrame implements Observer {
     }
 
     public void chargerJeu() {
-        jeu = new Jeu();
+        jeu = new Jeu(debug);
         jeu.addObserver(this);
     }
 

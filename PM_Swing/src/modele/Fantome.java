@@ -2,6 +2,7 @@ package modele;
 
 import java.awt.Color;
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Vector;
 
@@ -12,12 +13,12 @@ import java.util.Vector;
 public class Fantome extends Entite {
 
     private static final int LIMITE = 50; // Nombre de tour avant de redevenir invulnérable
-
-    private Vector<Point> pointTraverse = new Vector<>();
+	
+    private ArrayList<Point> pointTraverse = new ArrayList<>();
     private final Random r = new Random(); // Pour déplacement aléatoire
     private final Color couleur;
     private final Point spawn; // Point d'apparition
-    private Vector<Point> mur = new Vector<>();; // contient les coordoneés des murs
+    private ArrayList<Point> mur = new ArrayList<>(); // contient les coordoneés des murs
 
     private boolean vulnerable; // Ne peut pas tuer pacman
     private boolean mort; // Ne peut pas être mangé par pacman
@@ -31,8 +32,8 @@ public class Fantome extends Entite {
         vulnerable = false;
         mort = false;
 	
-        for(int i=0;i<jeu.SIZE; i++){
-            for(int j=0;j<jeu.SIZE; j++)
+        for(int i=0;i<Jeu.SIZE; i++){
+            for(int j=0;j<Jeu.SIZE; j++)
             {
                 if(jeu.getGrille()[i][j] instanceof Mur)
                     mur.add(new Point(i,j));
@@ -52,7 +53,7 @@ public class Fantome extends Entite {
         coo = spawn;
         d = Direction.neutre;
         jeu.deplacerEntite(this, Direction.neutre); // Pour MAJ visuelle
-        jeu.getSon().addElement(4);
+        jeu.getSon().add(4);
     }
 
     /**
@@ -178,13 +179,13 @@ public class Fantome extends Entite {
     
     public void  choiceDirectionHard(){
         
-        AlgorithmeAStar algo = new AlgorithmeAStar(jeu.SIZE,this.coo,jeu.getPacman().coo,mur);
+        AlgorithmeAStar algo = new AlgorithmeAStar(Jeu.SIZE,this.coo,jeu.getPacman().coo,mur);
         
         pointTraverse = algo.jeuSolution();
         
        // System.out.println("********************************Voici le Point suivant "+pointTraverse.lastElement()+"Voici Mon point"+this.coo +"******************************");
         if(pointTraverse.isEmpty()) choiceDirectionMedium(jeu.getPacman().coo,this.coo);
-        else choiceDirectionMedium(pointTraverse.lastElement(),this.coo);  
+        else choiceDirectionMedium(pointTraverse.get(pointTraverse.size() - 1),this.coo);  
     }
     
     public void choiceDirectionEasy(){

@@ -27,7 +27,7 @@ public class Boule extends Entite implements Mangeable {
     @Override
     public void getManger() {
         mange = true;
-        jeu.getSon().addElement(1);
+        jeu.getSon().add(1);
     }
 
     public boolean isManger() {

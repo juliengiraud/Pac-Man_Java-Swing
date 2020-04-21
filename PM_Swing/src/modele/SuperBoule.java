@@ -17,7 +17,7 @@ public class SuperBoule extends Boule {
     public void getManger() {
         mange = true;
         jeu.pacmanMangeSuperboule();
-        jeu.getSon().addElement(3);
+        jeu.getSon().add(3);
     }
 
 }

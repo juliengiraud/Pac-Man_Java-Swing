@@ -6,11 +6,9 @@
 package modele;
 
 import java.awt.Point;
-import static java.lang.Integer.min;
 import static java.lang.Math.abs;
+import java.util.ArrayList;
 import java.util.PriorityQueue;
-import java.util.Stack;
-import java.util.Vector;
 
 
 
@@ -33,10 +31,10 @@ public class AlgorithmeAStar {
     private Point arriver;
     
     
-    private Vector<Point> vector;
+    private ArrayList<Point> vector;
 
 
-    public AlgorithmeAStar(int size, Point debut, Point arriver, Vector<Point> mur){
+    public AlgorithmeAStar(int size, Point debut, Point arriver, ArrayList<Point> mur){
         
         grilleCellule = new Cellule[size][size];
         closedList = new boolean[size][size];
@@ -52,10 +50,10 @@ public class AlgorithmeAStar {
         
         //mettre les murs a null
         for(int i=0;i< mur.size() ; i++){
-            ajouterMurCellule(mur.elementAt(i).x,mur.elementAt(i).y);
+            ajouterMurCellule(mur.get(i).x,mur.get(i).y);
         }
         
-        vector = new Vector();
+        vector = new ArrayList<Point>();
         
         
     };
@@ -190,7 +188,7 @@ public class AlgorithmeAStar {
         
     }
     
-    public Vector<Point> jeuSolution(){
+    public ArrayList<Point> jeuSolution(){
         
         vector.clear();
         openList.clear();

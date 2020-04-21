@@ -4,19 +4,19 @@ import java.awt.Color;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Observable;
-import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Jeu extends Observable implements Runnable {
 
     public static final int SIZE = 25;
+    private final boolean debug;
 
     private Pacman pm;
     private Bonus bonus;
     private final Fantome[] fantomes;
     private int niveau;
-    private Vector<Integer> son = new Vector<>();
+    private ArrayList<Integer> son = new ArrayList<>();
 
     private int partie_on;
     private boolean starting;
@@ -24,13 +24,15 @@ public class Jeu extends Observable implements Runnable {
     private final Entite[][] grilleEntites; // entité à afficher sur des coordonnées
     private final ArrayList<Entite> entites;
 
-    public Jeu() {
+    public Jeu(boolean d) {
+        debug = d;
+        
         fantomes = new Fantome[4];
         grilleEntites = new Entite[SIZE][SIZE];
         entites = new ArrayList<>();
         niveau = 1;
         starting = true;
-        son.addElement(0);
+        son.add(0);
 
         initialisationDesEntites();
     }
@@ -39,7 +41,7 @@ public class Jeu extends Observable implements Runnable {
         return niveau;
     }
     
-    public Vector<Integer> getSon(){
+    public ArrayList<Integer> getSon(){
         return son;
     }
 
@@ -79,12 +81,12 @@ public class Jeu extends Observable implements Runnable {
 
     private void initialisationBoules() {
 
-        boolean DEBUG = true; // Place un minimum de boules histoire de passer rapidement d'un niveau à l'autre
+        // Le mode DEBUG Place un minimum de boules histoire de passer rapidement d'un niveau à l'autre
 
         ArrayList<Point> interdits = new ArrayList<>(); // Points où il ne faut pas mettre de boules
 
         ajouterSuperBoule(3, 6);
-        if (!DEBUG) {
+        if (!debug) {
             ajouterSuperBoule(3, 21);
             ajouterSuperBoule(20, 4);
             ajouterSuperBoule(21, 21);
@@ -107,8 +109,8 @@ public class Jeu extends Observable implements Runnable {
         interdits.add(bonus.coo); // Les coordonnées du bonus, évidemment
 
         // Ajout d'une boule dans tous les autres emplacements
-        for (int x = 1; x <= (DEBUG ? 5 : 23); x++)
-            for (int y = 1; y <= (DEBUG ? 1 : 23); y++)
+        for (int x = 1; x <= (debug ? 5 : 23); x++)
+            for (int y = 1; y <= (debug ? 1 : 23); y++)
                 if (!interdits.contains(new Point(x, y)) && !(grilleEntites[x][y] instanceof Mur))
                     ajouterBoule(x, y);
     }
@@ -585,7 +587,7 @@ public class Jeu extends Observable implements Runnable {
     private void nextLevel() {
 
         if (niveau == 3) { // Si le jeu est fini on sort
-            son.addElement(6);
+            son.add(6);
             stop();
             return;
         }

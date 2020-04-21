@@ -47,7 +47,7 @@ public class Bonus extends Entite implements Mangeable {
     @Override
     public void getManger() {
         reinitialiser();
-        jeu.getSon().addElement(2);
+        jeu.getSon().add(2);
     }
 
     @Override
