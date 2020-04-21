@@ -41,10 +41,11 @@ import modele.Pacman;
 import modele.Mur;
 import modele.SuperBoule;
 
-@SuppressWarnings("serial")
 public class VueControleurPacMan extends JFrame implements Observer {
     
     private final boolean debug;
+
+    @SuppressWarnings("serial")
 
     // En rapport avec la classe Jeu
     private Jeu jeu;
@@ -523,7 +524,7 @@ public class VueControleurPacMan extends JFrame implements Observer {
 
 
         } catch(IOException | LineUnavailableException | UnsupportedAudioFileException ex) {
-            ex.printStackTrace();
+            System.out.println(ex.getMessage());
         }
         
     }

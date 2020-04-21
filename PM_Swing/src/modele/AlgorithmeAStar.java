@@ -16,22 +16,22 @@ import java.util.PriorityQueue;
  * 
  * @author ghali
  */
-public class AlgorithmeAStar {
+public final class AlgorithmeAStar {
     
-    public static final int V_H_Cost = 10;
+    public static final int V_H_COST = 10;
     
     //la grille est passer en parametre une grille d'entite
     
     private Cellule[][] grilleCellule;
     
-    private PriorityQueue<Cellule> openList;
+    private final PriorityQueue<Cellule> openList;
     private boolean[][] closedList;
     
-    private Point debut;
-    private Point arriver;
+    private final Point debut;
+    private final Point arriver;
     
     
-    private ArrayList<Point> vector;
+    private final ArrayList<Point> vector;
 
 
     public AlgorithmeAStar(int size, Point debut, Point arriver, ArrayList<Point> mur){
@@ -39,7 +39,7 @@ public class AlgorithmeAStar {
         grilleCellule = new Cellule[size][size];
         closedList = new boolean[size][size];
         
-        openList = new PriorityQueue<Cellule>( (Cellule e1, Cellule e2)->{
+        openList = new PriorityQueue<>( (Cellule e1, Cellule e2)->{
             return e1.GetCost() < e2.GetCost() ? -1 : e1.GetCost()> e2.GetCost() ? 1:0;
         });
         
@@ -53,7 +53,7 @@ public class AlgorithmeAStar {
             ajouterMurCellule(mur.get(i).x,mur.get(i).y);
         }
         
-        vector = new ArrayList<Point>();
+        vector = new ArrayList<>();
         
         
     };
@@ -125,25 +125,25 @@ public class AlgorithmeAStar {
             
             if(courant.GetR().x -1 >=0){
                 gauche = grilleCellule[courant.GetR().x -1][courant.GetR().y];
-                chargerCost(courant,gauche,courant.GetCost()+V_H_Cost);
+                chargerCost(courant,gauche,courant.GetCost()+V_H_COST);
             }
             
             Cellule droite;
             if(courant.GetR().x +1 < grilleCellule.length){
                 droite = grilleCellule[courant.GetR().x+1][courant.GetR().y];
-                chargerCost(courant,droite,courant.GetCost()+V_H_Cost);
+                chargerCost(courant,droite,courant.GetCost()+V_H_COST);
             }
             
             Cellule bas;
             if(courant.GetR().y +1 < grilleCellule[1].length){
                 bas = grilleCellule[courant.GetR().x][courant.GetR().y+1];
-                chargerCost(courant,bas,courant.GetCost()+V_H_Cost);
+                chargerCost(courant,bas,courant.GetCost()+V_H_COST);
             }
             
             Cellule haut;
             if(courant.GetR().y -1 >=0){
                 haut = grilleCellule[courant.GetR().x][courant.GetR().y-1];
-                chargerCost(courant,haut,courant.GetCost()+V_H_Cost);
+                chargerCost(courant,haut,courant.GetCost()+V_H_COST);
             }
             
             
@@ -151,7 +151,7 @@ public class AlgorithmeAStar {
         
     }
     
-    //juste pour affiché les grilles
+    //juste pour afficher les grilles
     public void play(){
             System.out.println(" Grind : ");
             
@@ -171,7 +171,6 @@ public class AlgorithmeAStar {
             System.out.println();
     }
     
-    //affiche le cout
     public void scoreEntite(){
         System.out.println("\n Scores des entite");
         
@@ -193,32 +192,26 @@ public class AlgorithmeAStar {
         vector.clear();
         openList.clear();
         
-        for(int i =0 ; i<closedList.length;i++)
-        {
-            for(int j=0; j<closedList[i].length; j++){
-                    closedList[i][j] = false;
-                }
+        for (boolean[] closedList1 : closedList) {
+            for (int j = 0; j < closedList1.length; j++) {
+                closedList1[j] = false;
+            }
         }
     
         cheminCours();
         
         if(closedList[arriver.x][arriver.y]){
-            //System.out.println("Chemin :");
             
             Cellule courant = grilleCellule[arriver.x][arriver.y];
             vector.add(courant.GetR());
-            //System.out.println(courant.GetR());
             
             grilleCellule[courant.GetR().x][courant.GetR().y].solution = true;
             
             while(courant.GetParent() != null){
-                //System.out.println("->" + courant.GetParent().GetR());
                 grilleCellule[courant.GetParent().GetR().x ][courant.GetParent().GetR().y].solution = true;
                 vector.add(courant.GetR());
                 courant = courant.GetParent();
             }
-            
-            //System.out.println("\n");
 
         } else 
         {

@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Vector;
 
 /**
  *
@@ -18,7 +17,7 @@ public class Fantome extends Entite {
     private final Random r = new Random(); // Pour déplacement aléatoire
     private final Color couleur;
     private final Point spawn; // Point d'apparition
-    private ArrayList<Point> mur = new ArrayList<>(); // contient les coordoneés des murs
+    private final ArrayList<Point> mur = new ArrayList<>(); // contient les coordoneés des murs
 
     private boolean vulnerable; // Ne peut pas tuer pacman
     private boolean mort; // Ne peut pas être mangé par pacman
@@ -58,6 +57,7 @@ public class Fantome extends Entite {
 
     /**
      * Pour sélectionner l'icone à afficher (voir la vue)
+     * @return state
      */
     public int getState() {
         if (!vulnerable) {
@@ -183,9 +183,10 @@ public class Fantome extends Entite {
         
         pointTraverse = algo.jeuSolution();
         
-       // System.out.println("********************************Voici le Point suivant "+pointTraverse.lastElement()+"Voici Mon point"+this.coo +"******************************");
-        if(pointTraverse.isEmpty()) choiceDirectionMedium(jeu.getPacman().coo,this.coo);
-        else choiceDirectionMedium(pointTraverse.get(pointTraverse.size() - 1),this.coo);  
+       if (pointTraverse.isEmpty())
+           choiceDirectionMedium(jeu.getPacman().coo,this.coo);
+        else
+           choiceDirectionMedium(pointTraverse.get(pointTraverse.size() - 1),this.coo);  
     }
     
     public void choiceDirectionEasy(){
