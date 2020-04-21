@@ -361,6 +361,7 @@ public class VueControleurPacMan extends JFrame implements Observer {
     }
     
     private void chargerScores() {
+        creerTableauDesScores();
         
         for (int[] scores : scoreboard) { // Pour chaque ligne de score
             JPanel l = new JPanel(); // Conteneur de la ligne
