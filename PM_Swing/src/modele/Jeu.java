@@ -80,7 +80,7 @@ public class Jeu extends Observable implements Runnable {
 
     private void initialisationBoules() {
 
-        boolean DEBUG = false; // Place un minimum de boules histoire de passer rapidement d'un niveau à l'autre
+        boolean DEBUG = true; // Place un minimum de boules histoire de passer rapidement d'un niveau à l'autre
 
         ArrayList<Point> interdits = new ArrayList<>(); // Points où il ne faut pas mettre de boules
 
@@ -631,10 +631,19 @@ public class Jeu extends Observable implements Runnable {
             if (starting) {
 
                 // Nettoyage des entités
-                for (int x = 0; x < 23; x++)
+                /*for (int x = 0; x < 23; x++)
                     for (int y = 0; y < 23; y++)
                         if (grilleEntites[x][y] instanceof Fantome)
-                            grilleEntites[x][y] = null;
+                            grilleEntites[x][y] = null;*/
+                if (fantomes[0] != null)
+                    grilleEntites[fantomes[0].coo.x][fantomes[0].coo.y] = null;
+                if (fantomes[1] != null)
+                    grilleEntites[fantomes[1].coo.x][fantomes[1].coo.y] = null;
+                if (fantomes[2] != null)
+                    grilleEntites[fantomes[2].coo.x][fantomes[2].coo.y] = null;
+                if (fantomes[3] != null)
+                    grilleEntites[fantomes[3].coo.x][fantomes[3].coo.y] = null;
+                
                 entites.remove(fantomes[0]);
                 entites.remove(fantomes[1]);
                 entites.remove(fantomes[2]);
@@ -682,7 +691,7 @@ public class Jeu extends Observable implements Runnable {
             setChanged();
             notifyObservers();
 
-            // Petite pause entre chaque tour, on est pas des machines quand même :-)
+            // Petite pause entre chaque tour, on n'est pas des machines quand même :-)
             try {
                 Thread.sleep(500);
             } catch (InterruptedException ex) {

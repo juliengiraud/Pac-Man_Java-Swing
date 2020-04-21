@@ -81,7 +81,7 @@ public class Pacman extends Entite {
     }
 
     public void mangerFantome(Fantome f) {
-        int[] scores = {300, 600, 1200};
+        int[] scores = {200, 400, 800, 1600};
         augmenterScore(scores[fantomeMange]);
         fantomeMange++;
         f.getManger();

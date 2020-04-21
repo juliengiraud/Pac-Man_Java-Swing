@@ -116,15 +116,130 @@ public class Fantome extends Entite {
             d = Direction.neutre;
             return;
         }
+        
+    	if(this.jeu.getNiveau() == 1)
+            choiceDirectionEasy();
+        
+        if(this.jeu.getNiveau() == 2)
+            choiceDirectionMedium(jeu.getPacman().coo,this.coo);
+           
+        if(this.jeu.getNiveau() == 3)
+            choiceDirectionHard();
+    }
     
-        switch (r.nextInt(2)) {
-            case 0:
+    public boolean autoriser(Direction r ){
+        
+        boolean aut = !(jeu.regarderDansLaDirection(this, r) instanceof Mur) && !(jeu.regarderDansLaDirection(this, r) instanceof Fantome); 
+        
+        return aut;
+    }
+
+    public void choiceDirectionMedium(Point pacman, Point fantome){
+        int dx = pacman.x - fantome.x;
+        int dy= pacman.y - fantome.y;
+        
+        if (dx>0) dx=1;
+        if (dx<0) dx=-1;
+        if (dy>0) dy=1;
+        if (dy<0) dy=-1;
+                                
+            if(autoriser(Direction.droite) && dx == 1)
+            {
+                d = Direction.droite;
+            }else if(autoriser(Direction.gauche) && dx == -1)
+            {
                 d = Direction.gauche;
-                break;
-            case 1:
+            }
+            if(autoriser( Direction.haut)  && dy == -1)
+            {
                 d = Direction.haut;
-                break;
+            }else if(autoriser(Direction.bas) && dy == 1)
+            {
+                d = Direction.bas;
+            }
+            
+            if(dx == 0 && dy == 0)
+            {
+               if(autoriser(Direction.droite)){
+                   d = Direction.droite;
+               }
+               else if(autoriser(Direction.gauche)){
+                   d = Direction.gauche;
+               }
+               else if(autoriser(Direction.haut)){
+                   d = Direction.haut;
+               }
+               else if(autoriser(Direction.bas)){
+                   d = Direction.bas;
+               }        
+            }
+        
+    }
+    
+    public void  choiceDirectionHard(){
+        
+        AlgorithmeAStar algo = new AlgorithmeAStar(jeu.SIZE,this.coo,jeu.getPacman().coo,mur);
+        
+        pointTraverse = algo.jeuSolution();
+        
+       // System.out.println("********************************Voici le Point suivant "+pointTraverse.lastElement()+"Voici Mon point"+this.coo +"******************************");
+        if(pointTraverse.isEmpty()) choiceDirectionMedium(jeu.getPacman().coo,this.coo);
+        else choiceDirectionMedium(pointTraverse.lastElement(),this.coo);  
+    }
+    
+    public void choiceDirectionEasy(){
+        switch (d) {
+                case bas:
+                        d = dirBasHaut(d,Direction.bas);
+                    break;
+                    
+                case haut:
+                        d = dirBasHaut(d,Direction.haut);
+                    break;
+                    
+                case gauche:
+                        d = dirGaucheDroite(d,Direction.gauche);
+                    break;
+                    
+                case droite:
+                        d = dirGaucheDroite(d,Direction.droite);
+                    break;      
+           } 
+    }
+    
+    public Direction dirBasHaut(Direction d, Direction hautBas)
+    { 
+        if(autoriser(Direction.droite) && r.nextInt(3) ==0)
+        {
+            d = Direction.droite;
         }
+        else if(!(jeu.regarderDansLaDirection(this, hautBas) instanceof Mur))
+        {
+            d = hautBas;
+        }
+        if(autoriser(Direction.gauche))
+        {
+            d = Direction.gauche;
+        }
+            return d;
+    }
+    
+    public Direction dirGaucheDroite(Direction d,Direction gaucheDroite)
+    {    
+        if(autoriser(Direction.haut) && r.nextInt(3) ==0)
+               {
+                   d = Direction.haut;
+               }
+        else if(!(jeu.regarderDansLaDirection(this, gaucheDroite) instanceof Mur))
+        {
+            d = gaucheDroite;
+        }
+        if(autoriser(Direction.bas))
+               {
+                   d = Direction.bas;
+               }
+        
+        return d;
     }
 
     public boolean isMort() {
