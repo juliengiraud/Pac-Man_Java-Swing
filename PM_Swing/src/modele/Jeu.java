@@ -466,9 +466,9 @@ public class Jeu extends Observable implements Runnable {
             if (dest == pm)
                 return gestionCollisionPacmanFantome((Fantome) src); // Il arrive sur un autre fantôme
 
-            if (dest instanceof Fantome) // Un fantôme ne peut pas traverser un autre fantôme
-                return null;
-            return src;
+            //if (dest instanceof Fantome) // Un fantôme ne peut pas traverser un autre fantôme
+                //return null;
+            return src; // Le fantôme doit traverser un autre fantôme
         }
 
         System.out.println("Problème de collision avec " + src.getClass() + " et " + dest.getClass());
