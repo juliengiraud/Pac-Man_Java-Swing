@@ -2,6 +2,8 @@
 
 ![image jeu](PM_Swing/Images/rapport.png)
 
+L'un des fantômes a été infecté par le coronavirus, ses amis sont probablement contagieux. Vous devez nettoyer la grille en faisant tout pour les éviter !
+
 ## Réalisation
 
 Ce jeu vous est présenté par :
