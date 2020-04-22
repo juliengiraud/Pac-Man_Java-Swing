@@ -1,5 +1,7 @@
 # Pac-Man édition coronavirus
 
+![image jeu](PM_Swing/Images/rapport.png)
+
 ## Réalisation
 
 Ce jeu vous est présenté par :
