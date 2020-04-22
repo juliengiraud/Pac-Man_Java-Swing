@@ -45,5 +45,3 @@ Il y a un petit easter egg à la fin du jeu pour vous féliciter d'avoir échapp
 2. Pensez à utiliser le passage magique sur les côtés de la map
 3. Pour gagner plus de points, mangez le fruit bonus
 4. Pour gagner encore plus de points, mangez les superBoules (il y en a 4), elles vous protégeront contre le Convid-19 (c'est un peu comme du savon) et plus vous mangerez de fantômes plus votre score augmentera (200 -> 400 -> 800 -> 1600)
-
-Cependant les superBoules vous permetrons de manger les fantomes et éliminer le Convid-19 (c'est un peu comme du savon).
